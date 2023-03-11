@@ -20,7 +20,8 @@ func (m *Match) preflight() (err error) {
 		return
 	}
 
-	// TODO: start players
+	m.Players = map[string]process.ProbojProcess{}
+	m.startPlayers()
 
 	err = m.sendConfigToServer()
 	if err != nil {
@@ -44,4 +45,30 @@ func (m *Match) startServer() (err error) {
 	m.logger.Info("Starting server process")
 	m.Server.Start()
 	return
+}
+
+func (m *Match) startPlayers() {
+	for _, player := range m.Game.Players {
+		err := m.startPlayer(player)
+		if err != nil {
+			m.logger.Error("Failed to start player", "player", player, "err", err)
+		}
+	}
+}
+
+func (m *Match) startPlayer(name string) error {
+	program, exists := m.Config.Players[name]
+	if !exists {
+		return fmt.Errorf("player %s not found in config", name)
+	}
+	m.logger.Debug("Creating player process", "player", name, "program", program)
+	proc, err := process.NewProbojProcess(program, m.Config.ServerWorkDirectory)
+	if err != nil {
+		return err
+	}
+
+	m.logger.Info("Starting player process", "player", name)
+	m.Players[name] = proc
+	proc.Start()
+	return nil
 }
