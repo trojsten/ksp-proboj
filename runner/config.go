@@ -24,7 +24,7 @@ type Match struct {
 	Game    Game
 	Config  Config
 	Server  process.ProbojProcess
-	Players map[string]process.ProbojProcess
+	Players map[string]*process.ProbojProcess
 	logger  log.Logger
 	started bool
 	ended   bool

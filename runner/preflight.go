@@ -20,7 +20,7 @@ func (m *Match) preflight() (err error) {
 		return
 	}
 
-	m.Players = map[string]process.ProbojProcess{}
+	m.Players = map[string]*process.ProbojProcess{}
 	m.startPlayers()
 
 	err = m.sendConfigToServer()
@@ -68,7 +68,7 @@ func (m *Match) startPlayer(name string) error {
 	}
 
 	m.logger.Info("Starting player process", "player", name)
-	m.Players[name] = proc
+	m.Players[name] = &proc
 	proc.Start()
 	return nil
 }
