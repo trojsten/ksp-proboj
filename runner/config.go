@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/charmbracelet/log"
+	log2 "github.com/trojsten/ksp-proboj/runner/log"
 	"github.com/trojsten/ksp-proboj/runner/process"
 )
 
@@ -28,4 +29,6 @@ type Match struct {
 	logger  log.Logger
 	started bool
 	ended   bool
+
+	observer log2.Log
 }

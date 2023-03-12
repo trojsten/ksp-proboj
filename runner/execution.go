@@ -1,6 +1,13 @@
 package main
 
 func (m *Match) Run() {
+	defer func(m *Match) {
+		err := m.teardown()
+		if err != nil {
+			m.logger.Error("Error in teardown", "err", err)
+		}
+	}(m)
+
 	err := m.preflight()
 	if err != nil {
 		m.logger.Error("Error in preflight", "err", err)
@@ -22,13 +29,5 @@ func (m *Match) Run() {
 
 	if !m.ended {
 		m.logger.Warn("Server exited without proper game end", "exit", m.Server.Exit, "err", m.Server.Error)
-	}
-
-	for name, process := range m.Players {
-		m.logger.Debug("Killing player", "player", name)
-		err := process.Kill()
-		if err != nil {
-			m.logger.Error("Could not kill player", "err", err)
-		}
 	}
 }

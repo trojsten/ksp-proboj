@@ -12,6 +12,7 @@ type handlerFunc func(m *Match, args []string, payload string) common.RunnerResp
 var Handlers = map[string]handlerFunc{
 	"TO PLAYER":   cmdToPlayer,
 	"READ PLAYER": cmdReadPlayer,
+	"TO OBSERVER": cmdToObserver,
 }
 
 func (m *Match) parseCommand(data string) {
@@ -68,7 +69,7 @@ func cmdToPlayer(m *Match, args []string, payload string) common.RunnerResponse 
 	return common.RunnerResponse{Status: common.Ok}
 }
 
-func cmdReadPlayer(m *Match, args []string, payload string) common.RunnerResponse {
+func cmdReadPlayer(m *Match, args []string, _ string) common.RunnerResponse {
 	if len(args) < 1 {
 		m.logger.Error("Invalid command syntax: missing arguments")
 		return common.RunnerResponse{Status: common.Error}
@@ -108,4 +109,12 @@ func cmdReadPlayer(m *Match, args []string, payload string) common.RunnerRespons
 			Payload: result.Data,
 		}
 	}
+}
+
+func cmdToObserver(m *Match, _ []string, payload string) common.RunnerResponse {
+	_, err := m.observer.Write([]byte(payload))
+	if err != nil {
+		return common.RunnerResponse{Status: common.Error}
+	}
+	return common.RunnerResponse{Status: common.Ok}
 }

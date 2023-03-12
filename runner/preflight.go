@@ -3,7 +3,10 @@ package main
 import (
 	"fmt"
 	"github.com/charmbracelet/log"
+	log2 "github.com/trojsten/ksp-proboj/runner/log"
 	"github.com/trojsten/ksp-proboj/runner/process"
+	"os"
+	"path"
 	"strings"
 )
 
@@ -15,6 +18,11 @@ func (m *Match) preflight() (err error) {
 	m.logger = log.With()
 	m.logger.SetPrefix(m.Game.Gamefolder)
 
+	err = os.MkdirAll(m.Game.Gamefolder, 0o755)
+	if err != nil {
+		return
+	}
+
 	err = m.startServer()
 	if err != nil {
 		return
@@ -22,6 +30,11 @@ func (m *Match) preflight() (err error) {
 
 	m.Players = map[string]*process.ProbojProcess{}
 	m.startPlayers()
+
+	err = m.openObserver()
+	if err != nil {
+		return
+	}
 
 	err = m.sendConfigToServer()
 	if err != nil {
@@ -71,4 +84,16 @@ func (m *Match) startPlayer(name string) error {
 	m.Players[name] = &proc
 	proc.Start()
 	return nil
+}
+
+func (m *Match) openObserver() error {
+	fileName := path.Join(m.Game.Gamefolder, "observer.gz")
+	m.logger.Debug("Opening observer file", "file", fileName)
+	file, err := os.Create(fileName)
+	if err != nil {
+		return err
+	}
+
+	m.observer, err = log2.NewGzipLog(file)
+	return err
 }
