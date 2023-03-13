@@ -18,7 +18,12 @@ func (m *Match) preflight() (err error) {
 	m.logger = log.With()
 	m.logger.SetPrefix(m.Game.Gamefolder)
 
+	// Create folders
 	err = os.MkdirAll(m.Game.Gamefolder, 0o755)
+	if err != nil {
+		return
+	}
+	err = os.MkdirAll(path.Join(m.Game.Gamefolder, "logs"), 0o755)
 	if err != nil {
 		return
 	}
@@ -50,7 +55,13 @@ func (m *Match) sendConfigToServer() error {
 
 func (m *Match) startServer() (err error) {
 	m.logger.Debug("Creating server process", "server", m.Config.Server)
-	m.Server, err = process.NewProbojProcess(m.Config.Server, m.Config.ServerWorkDirectory)
+
+	logConfig, err := m.logConfig("__server")
+	if err != nil {
+		return
+	}
+
+	m.Server, err = process.NewProbojProcess(m.Config.Server, m.Config.ServerWorkDirectory, logConfig)
 	if err != nil {
 		return
 	}
@@ -69,13 +80,48 @@ func (m *Match) startPlayers() {
 	}
 }
 
+func (m *Match) logConfig(name string) (process.LogConfig, error) {
+	var logConfig process.LogConfig
+	if m.Config.DisableLogs {
+		logConfig.Enabled = false
+	} else {
+		logConfig.Enabled = true
+		suffix := "gz"
+		if m.Config.DisableGzip {
+			suffix = "txt"
+		}
+
+		fileName := path.Join(m.Game.Gamefolder, "logs", fmt.Sprintf("%s.%s", name, suffix))
+		file, err := os.Create(fileName)
+		if err != nil {
+			return process.LogConfig{}, err
+		}
+
+		if m.Config.DisableGzip {
+			logConfig.Log = log2.NewPlainLog(file)
+		} else {
+			logConfig.Log, err = log2.NewGzipLog(file)
+			if err != nil {
+				return process.LogConfig{}, err
+			}
+		}
+	}
+	return logConfig, nil
+}
+
 func (m *Match) startPlayer(name string) error {
 	program, exists := m.Config.Players[name]
 	if !exists {
 		return fmt.Errorf("player %s not found in config", name)
 	}
+
+	logConfig, err := m.logConfig(name)
+	if err != nil {
+		return err
+	}
+
 	m.logger.Debug("Creating player process", "player", name, "program", program)
-	proc, err := process.NewProbojProcess(program, m.Config.ServerWorkDirectory)
+	proc, err := process.NewProbojProcess(program, m.Config.ServerWorkDirectory, logConfig)
 	if err != nil {
 		return err
 	}

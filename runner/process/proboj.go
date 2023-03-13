@@ -2,13 +2,18 @@ package process
 
 import (
 	"bufio"
+	"fmt"
+	"github.com/trojsten/ksp-proboj/runner/log"
 	"strings"
+	"sync"
 )
 
 type ProbojProcess struct {
 	Process
 	stdoutScanner *bufio.Scanner
 	stderrScanner *bufio.Scanner
+	log           log.Log
+	logMutex      *sync.Mutex
 }
 
 func probojSplitFunc(buffer []byte, eof bool) (int, []byte, error) {
@@ -20,13 +25,13 @@ func probojSplitFunc(buffer []byte, eof bool) (int, []byte, error) {
 	return len(token) + 3, token, nil // + 3 so we also advance over "\n.\n"
 }
 
-func NewProbojProcess(command string, dir string) (pp ProbojProcess, err error) {
+func NewProbojProcess(command string, dir string, logConfig LogConfig) (pp ProbojProcess, err error) {
 	pp.Process, err = NewProcess(Options{
 		Command: command,
 		Dir:     dir,
 		Stdin:   true,
 		Stdout:  true,
-		Stderr:  false, // todo: logs
+		Stderr:  logConfig.Enabled,
 	})
 	if err != nil {
 		return
@@ -34,6 +39,15 @@ func NewProbojProcess(command string, dir string) (pp ProbojProcess, err error) 
 
 	pp.stdoutScanner = bufio.NewScanner(pp.Process.Stdout)
 	pp.stdoutScanner.Split(probojSplitFunc)
+
+	if logConfig.Enabled {
+		pp.stderrScanner = bufio.NewScanner(pp.Process.Stderr)
+		pp.logMutex = &sync.Mutex{}
+		pp.log = logConfig.Log
+		go pp.stderrLoop()
+	} else {
+		pp.log = log.NewNullLog()
+	}
 	return
 }
 
@@ -64,4 +78,22 @@ func (pp *ProbojProcess) AsyncRead() <-chan ReadResult {
 		}
 	}()
 	return ch
+}
+
+func (pp *ProbojProcess) WriteLog(data string) error {
+	defer pp.logMutex.Unlock()
+	pp.logMutex.Lock()
+	_, err := pp.log.Write([]byte(data))
+	return err
+}
+
+func (pp *ProbojProcess) stderrLoop() {
+	for pp.stderrScanner.Scan() {
+		// Write error ignored here.
+		_ = pp.WriteLog(fmt.Sprintf("%s\n", pp.stderrScanner.Text()))
+	}
+	if err := pp.stderrScanner.Err(); err != nil {
+		// Write error ignored here.
+		_ = pp.WriteLog(fmt.Sprintf("[proboj] error while scanning stderr: %s\n", err.Error()))
+	}
 }
