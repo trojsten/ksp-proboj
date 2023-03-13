@@ -9,7 +9,7 @@ import (
 )
 
 type ProbojProcess struct {
-	Process
+	*Process
 	stdoutScanner *bufio.Scanner
 	stderrScanner *bufio.Scanner
 	log           log.Log
@@ -26,7 +26,7 @@ func probojSplitFunc(buffer []byte, eof bool) (int, []byte, error) {
 }
 
 func NewProbojProcess(command string, dir string, logConfig LogConfig) (pp ProbojProcess, err error) {
-	pp.Process, err = NewProcess(Options{
+	proc, err := NewProcess(Options{
 		Command: command,
 		Dir:     dir,
 		Stdin:   true,
@@ -36,6 +36,7 @@ func NewProbojProcess(command string, dir string, logConfig LogConfig) (pp Probo
 	if err != nil {
 		return
 	}
+	pp.Process = &proc
 
 	pp.stdoutScanner = bufio.NewScanner(pp.Process.Stdout)
 	pp.stdoutScanner.Split(probojSplitFunc)

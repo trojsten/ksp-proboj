@@ -61,11 +61,6 @@ func NewProcess(options Options) (p Process, err error) {
 }
 
 func (p *Process) run() error {
-	defer func() {
-		p.ended = true
-		close(p.exitChan)
-	}()
-
 	err := p.cmd.Start()
 	if err != nil {
 		return err
@@ -92,6 +87,8 @@ func (p *Process) Start() chan struct{} {
 		if err != nil {
 			p.Error = err
 		}
+		p.ended = true
+		close(p.exitChan)
 	}()
 	return p.exitChan
 }
