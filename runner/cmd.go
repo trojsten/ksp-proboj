@@ -12,6 +12,7 @@ var Handlers = map[string]handlerFunc{
 	"READ PLAYER": cmdReadPlayer,
 	"TO OBSERVER": cmdToObserver,
 	"KILL PLAYER": cmdKillPlayer,
+	"SCORES":      cmdScores,
 }
 
 func (m *Match) parseCommand(data string) {
