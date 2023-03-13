@@ -45,6 +45,7 @@ func NewProbojProcess(command string, dir string, logConfig LogConfig) (pp Probo
 		pp.logMutex = &sync.Mutex{}
 		pp.log = logConfig.Log
 		go pp.stderrLoop()
+		go pp.closeLogOnExit()
 	} else {
 		pp.log = log.NewNullLog()
 	}
@@ -96,4 +97,13 @@ func (pp *ProbojProcess) stderrLoop() {
 		// Write error ignored here.
 		_ = pp.WriteLog(fmt.Sprintf("[proboj] error while scanning stderr: %s\n", err.Error()))
 	}
+}
+
+func (pp *ProbojProcess) closeLogOnExit() {
+	<-pp.OnExit()
+
+	defer pp.logMutex.Unlock()
+	pp.logMutex.Lock()
+	_, _ = pp.log.Write([]byte(fmt.Sprintf("[proboj] process terminated\n exit: %d\n err: %v\n", pp.Exit, pp.Error)))
+	_ = pp.log.Close()
 }

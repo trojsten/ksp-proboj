@@ -20,7 +20,12 @@ func NewGzipLog(w io.WriteCloser) (*GzipLog, error) {
 }
 
 func (c *GzipLog) Write(p []byte) (n int, err error) {
-	return c.gz.Write(p)
+	n, err = c.gz.Write(p)
+	if err != nil {
+		return
+	}
+	err = c.gz.Flush()
+	return
 }
 
 func (c *GzipLog) Close() error {
