@@ -31,7 +31,7 @@ func cmdToPlayer(m *Match, args []string, payload string) common.RunnerResponse 
 	}
 
 	m.logger.Debug("Sending data to player", "player", player)
-	err := proc.Write(payload)
+	err := proc.Write(fmt.Sprintf("%s\n.\n", payload))
 	if err != nil {
 		m.logger.Error("Failed writing data to player", "player", player, "err", err)
 		return common.RunnerResponse{Status: common.Error}
