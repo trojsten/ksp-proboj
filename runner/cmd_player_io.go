@@ -18,8 +18,6 @@ func cmdToPlayer(m *Match, args []string, payload string) common.RunnerResponse 
 		note = strings.Join(args[1:], " ")
 	}
 
-	fmt.Println(note)
-
 	proc, ok := m.Players[player]
 	if !ok {
 		m.logger.Error("Unknown player", "player", player)
@@ -30,8 +28,13 @@ func cmdToPlayer(m *Match, args []string, payload string) common.RunnerResponse 
 		return common.RunnerResponse{Status: common.Died}
 	}
 
+	err := proc.WriteLog(fmt.Sprintf("[proboj] %s\n", note))
+	if err != nil {
+		m.logger.Error("Failed writing data to players' log", "player", player, "err", err)
+	}
+
 	m.logger.Debug("Sending data to player", "player", player)
-	err := proc.Write(fmt.Sprintf("%s\n.\n", payload))
+	err = proc.Write(fmt.Sprintf("%s\n.\n", payload))
 	if err != nil {
 		m.logger.Error("Failed writing data to player", "player", player, "err", err)
 		return common.RunnerResponse{Status: common.Error}
