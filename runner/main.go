@@ -16,9 +16,10 @@ func printUsage() {
 
 func main() {
 	flag.Usage = printUsage
-	var debug bool
-	flag.BoolVar(&debug, "v", false, "print verbose logs")
-	flag.BoolVar(&debug, "verbose", false, "print verbose logs")
+	debug := false
+	flag.BoolVar(&debug, "v", debug, "print verbose logs")
+	concurrency := 1
+	flag.IntVar(&concurrency, "c", concurrency, "number of games to run concurrently")
 
 	flag.Parse()
 	if flag.NArg() != 2 {
@@ -61,11 +62,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	for _, game := range games {
-		m := Match{
-			Game:   game,
-			Config: config,
-		}
-		m.Run()
+	if concurrency > 1 {
+		runParallel(config, games, concurrency)
+	} else {
+		runSequentially(config, games)
 	}
 }
