@@ -14,7 +14,7 @@ func (m *Match) Run() {
 		return
 	}
 
-	for m.Server.IsRunning() {
+	for m.Server.IsRunning() && !m.ended {
 		m.logger.Debug("Waiting for command from server")
 		cmd, err := m.Server.Read()
 		if err != nil {

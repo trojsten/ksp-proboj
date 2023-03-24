@@ -8,6 +8,7 @@ const (
 	Error Status = iota
 	Ok
 	Died
+	Ignore // this response will not be sent to the server
 )
 
 func (s Status) String() string {
