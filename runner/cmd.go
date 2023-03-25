@@ -13,6 +13,7 @@ var Handlers = map[string]handlerFunc{
 	"TO OBSERVER": cmdToObserver,
 	"KILL PLAYER": cmdKillPlayer,
 	"SCORES":      cmdScores,
+	"END":         cmdEnd,
 }
 
 func (m *Match) parseCommand(data string) {
@@ -27,6 +28,10 @@ func (m *Match) parseCommand(data string) {
 		args := strings.Split(strings.TrimSpace(strings.TrimPrefix(cmd, prefix)), " ")
 		m.logger.Debug("Using command handler", "handler", prefix, "args", args)
 		response := handler(m, args, payload)
+		if response.Status == common.Ignore {
+			return
+		}
+
 		err := m.Server.Write(response.String())
 		if err != nil {
 			m.logger.Error("Failed writing response back to the server", "err", err)
