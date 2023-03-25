@@ -16,14 +16,15 @@ func (m *Match) preflight() (err error) {
 	}
 	m.started = true
 	m.logger = log.With()
+	m.Directory = path.Join(m.Config.GameRoot, m.Game.Gamefolder)
 	m.logger.SetPrefix(m.Game.Gamefolder)
 
 	// Create folders
-	err = os.MkdirAll(m.Game.Gamefolder, 0o755)
+	err = os.MkdirAll(m.Directory, 0o755)
 	if err != nil {
 		return
 	}
-	err = os.MkdirAll(path.Join(m.Game.Gamefolder, "logs"), 0o755)
+	err = os.MkdirAll(path.Join(m.Directory, "logs"), 0o755)
 	if err != nil {
 		return
 	}
@@ -61,7 +62,7 @@ func (m *Match) startServer() (err error) {
 		return
 	}
 
-	m.Server, err = process.NewProbojProcess(m.Config.Server, m.Config.ServerWorkDirectory, logConfig)
+	m.Server, err = process.NewProbojProcess(m.Config.Server, m.Directory, logConfig)
 	if err != nil {
 		return
 	}
@@ -91,7 +92,7 @@ func (m *Match) logConfig(name string) (process.LogConfig, error) {
 			suffix = "txt"
 		}
 
-		fileName := path.Join(m.Game.Gamefolder, "logs", fmt.Sprintf("%s.%s", name, suffix))
+		fileName := path.Join(m.Directory, "logs", fmt.Sprintf("%s.%s", name, suffix))
 		file, err := os.Create(fileName)
 		if err != nil {
 			return process.LogConfig{}, err
@@ -121,7 +122,7 @@ func (m *Match) startPlayer(name string) error {
 	}
 
 	m.logger.Debug("Creating player process", "player", name, "program", program)
-	proc, err := process.NewProbojProcess(program, m.Config.ServerWorkDirectory, logConfig)
+	proc, err := process.NewProbojProcess(program, m.Directory, logConfig)
 	if err != nil {
 		return err
 	}
