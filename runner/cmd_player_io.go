@@ -25,6 +25,7 @@ func cmdToPlayer(m *Match, args []string, payload string) common.RunnerResponse 
 	}
 
 	if !proc.IsRunning() {
+		m.logger.Warn("Player is not running", "player", player)
 		return common.RunnerResponse{Status: common.Died}
 	}
 
