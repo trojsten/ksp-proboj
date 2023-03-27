@@ -98,11 +98,11 @@ func (p *Process) OnExit() chan struct{} {
 }
 
 func (p *Process) IsRunning() bool {
-	return p.started && !p.ended
+	return p.started && !p.ended && p.cmd.Process != nil
 }
 
 func (p *Process) Kill() error {
-	if !p.started || p.ended {
+	if !p.IsRunning() {
 		return fmt.Errorf("process is not running")
 	}
 

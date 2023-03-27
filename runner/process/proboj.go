@@ -54,6 +54,9 @@ func NewProbojProcess(command string, dir string, logConfig LogConfig) (pp Probo
 }
 
 func (pp *ProbojProcess) Write(data string) error {
+	if !pp.IsRunning() {
+		return fmt.Errorf("process is not running")
+	}
 	_, err := pp.Process.Stdin.Write([]byte(data))
 	return err
 }
