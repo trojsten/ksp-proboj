@@ -100,7 +100,6 @@ func (p *Process) Start() chan struct{} {
 			p.Error = err
 		}
 		p.ended = true
-		fmt.Println("endeeeeeed")
 		close(p.exitChan)
 	}()
 	return p.exitChan
