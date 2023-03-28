@@ -44,7 +44,6 @@ func NewProcess(options Options) (p Process, err error) {
 		}
 		parts[0] = path.Join(wd, parts[0])
 	}
-	fmt.Println(parts)
 
 	p.cmd = exec.Command(parts[0], parts[1:]...)
 	p.cmd.Dir = options.Dir
@@ -110,7 +109,7 @@ func (p *Process) OnExit() chan struct{} {
 }
 
 func (p *Process) IsRunning() bool {
-	return p.started && !p.ended && p.cmd.Process != nil
+	return p.started && !p.ended
 }
 
 func (p *Process) Kill() error {

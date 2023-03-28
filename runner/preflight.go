@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-func (m *Match) preflight() (err error) {
+func (m *Match) preflight() error {
 	if m.started {
 		return fmt.Errorf("the match was already started")
 	}
@@ -20,18 +20,23 @@ func (m *Match) preflight() (err error) {
 	m.logger.SetPrefix(m.Game.Gamefolder)
 
 	// Create folders
-	err = os.MkdirAll(m.Directory, 0o755)
+	err := os.MkdirAll(m.Directory, 0o755)
 	if err != nil {
-		return
+		return fmt.Errorf("mkdir %s: %w", m.Directory, err)
 	}
 	err = os.MkdirAll(path.Join(m.Directory, "logs"), 0o755)
 	if err != nil {
-		return
+		return fmt.Errorf("mkdir %s/logs: %w", m.Directory, err)
 	}
 
 	err = m.startServer()
 	if err != nil {
-		return
+		return fmt.Errorf("start server: %w", err)
+	}
+
+	err = m.sendConfigToServer()
+	if err != nil {
+		return fmt.Errorf("send config to server: %w", err)
 	}
 
 	m.Players = map[string]*process.ProbojProcess{}
@@ -39,15 +44,10 @@ func (m *Match) preflight() (err error) {
 
 	err = m.openObserver()
 	if err != nil {
-		return
+		return fmt.Errorf("open observer: %w", err)
 	}
 
-	err = m.sendConfigToServer()
-	if err != nil {
-		return
-	}
-
-	return
+	return nil
 }
 
 func (m *Match) sendConfigToServer() error {
