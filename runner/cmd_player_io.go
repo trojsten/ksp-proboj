@@ -63,7 +63,7 @@ func cmdReadPlayer(m *Match, args []string, _ string) common.RunnerResponse {
 
 	m.logger.Debug("Reading data from player", "player", player)
 	select {
-	case <-time.After(time.Second * time.Duration(m.Config.Timeout)):
+	case <-time.After(time.Millisecond * time.Duration(m.Config.Timeout*1000)):
 		m.logger.Warn("Player timeouted", "player", player)
 		err := proc.Kill()
 		if err != nil {

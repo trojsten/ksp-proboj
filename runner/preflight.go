@@ -134,7 +134,7 @@ func (m *Match) startPlayer(name string) error {
 }
 
 func (m *Match) openObserver() error {
-	fileName := path.Join(m.Game.Gamefolder, "observer.gz")
+	fileName := path.Join(m.Directory, "observer.gz")
 	m.logger.Debug("Opening observer file", "file", fileName)
 	file, err := os.Create(fileName)
 	if err != nil {

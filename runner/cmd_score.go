@@ -24,7 +24,7 @@ func cmdScores(m *Match, _ []string, payload string) common.RunnerResponse {
 		scores[player] = score
 	}
 
-	fileName := path.Join(m.Game.Gamefolder, "score")
+	fileName := path.Join(m.Directory, "score")
 	file, err := os.Create(fileName)
 	if err != nil {
 		m.logger.Error("Could not open score file", "err", err)
