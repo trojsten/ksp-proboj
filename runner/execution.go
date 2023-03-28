@@ -11,7 +11,6 @@ func (m *Match) Run() {
 	err := m.preflight()
 	if err != nil {
 		m.logger.Error("Error in preflight", "err", err)
-		return
 	}
 
 	for m.Server.IsRunning() && !m.ended {

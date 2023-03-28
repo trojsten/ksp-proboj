@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"github.com/google/shlex"
 	"io"
+	"os"
 	"os/exec"
+	"path"
 )
 
 type Options struct {
@@ -33,6 +35,16 @@ func NewProcess(options Options) (p Process, err error) {
 	if err != nil {
 		return
 	}
+
+	if !path.IsAbs(parts[0]) {
+		var wd string
+		wd, err = os.Getwd()
+		if err != nil {
+			return
+		}
+		parts[0] = path.Join(wd, parts[0])
+	}
+	fmt.Println(parts)
 
 	p.cmd = exec.Command(parts[0], parts[1:]...)
 	p.cmd.Dir = options.Dir
@@ -98,11 +110,11 @@ func (p *Process) OnExit() chan struct{} {
 }
 
 func (p *Process) IsRunning() bool {
-	return p.started && !p.ended
+	return p.started && !p.ended && p.cmd.Process != nil
 }
 
 func (p *Process) Kill() error {
-	if !p.started || p.ended {
+	if !p.IsRunning() {
 		return fmt.Errorf("process is not running")
 	}
 
