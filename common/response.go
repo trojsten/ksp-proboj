@@ -23,14 +23,23 @@ func (s Status) String() string {
 	return "?"
 }
 
+func GetStatus(s string) Status {
+	switch s {
+	case "ERROR":
+		return Error
+	case "OK":
+		return Ok
+	case "DIED":
+		return Died
+	}
+	return Error
+}
+
 type RunnerResponse struct {
 	Status  Status
 	Payload string
 }
 
 func (r RunnerResponse) String() string {
-	if r.Payload == "" {
-		return fmt.Sprintf("%s\n", r.Status.String())
-	}
 	return fmt.Sprintf("%s\n%s\n.\n", r.Status.String(), r.Payload)
 }

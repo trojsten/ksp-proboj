@@ -1,6 +1,9 @@
 package libproboj
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/trojsten/ksp-proboj/common"
+)
 
 // ToPlayer sends the given data to the player.
 // Optional comment can be provided, which will get logged by
@@ -8,13 +11,13 @@ import "fmt"
 func (r Runner) ToPlayer(player string, comment string, data string) RunnerResponse {
 	r.sendCommandWithArgs("TO PLAYER", []string{player, comment}, data)
 
-	response := r.readLine()
-	if response == "OK" {
+	response := r.readResponse()
+	if response.Status == common.Ok {
 		return Ok
-	} else if response == "DIED" {
+	} else if response.Status == common.Died {
 		return Died
 	}
-	r.Log(fmt.Sprintf("unknown response to cmd 'TO PLAYER' from runner: %s", response))
+	r.Log(fmt.Sprintf("unknown response to cmd 'TO PLAYER' from runner: %s", response.String()))
 	return Unknown
 }
 
@@ -22,13 +25,13 @@ func (r Runner) ToPlayer(player string, comment string, data string) RunnerRespo
 func (r Runner) ReadPlayer(player string) (RunnerResponse, string) {
 	r.sendCommandWithArgs("READ PLAYER", []string{player}, "")
 
-	response := r.readLine()
-	if response == "OK" {
-		return Ok, r.readLines()
-	} else if response == "DIED" {
+	response := r.readResponse()
+	if response.Status == common.Ok {
+		return Ok, response.Payload
+	} else if response.Status == common.Died {
 		return Died, ""
 	}
-	r.Log(fmt.Sprintf("unknown response to cmd 'READ PLAYER' from runner: %s", response))
+	r.Log(fmt.Sprintf("unknown response to cmd 'READ PLAYER' from runner: %s", response.String()))
 	return Unknown, ""
 }
 
@@ -36,10 +39,10 @@ func (r Runner) ReadPlayer(player string) (RunnerResponse, string) {
 func (r Runner) KillPlayer(player string) RunnerResponse {
 	r.sendCommandWithArgs("KILL PLAYER", []string{player}, "")
 
-	response := r.readLine()
-	if response == "OK" {
+	response := r.readResponse()
+	if response.Status == common.Ok {
 		return Ok
 	}
-	r.Log(fmt.Sprintf("unknown response to cmd 'KILL PLAYER' from runner: %s", response))
+	r.Log(fmt.Sprintf("unknown response to cmd 'KILL PLAYER' from runner: %s", response.String()))
 	return Unknown
 }

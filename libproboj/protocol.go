@@ -2,6 +2,7 @@ package libproboj
 
 import (
 	"fmt"
+	"github.com/trojsten/ksp-proboj/common"
 	"strings"
 )
 
@@ -35,4 +36,12 @@ func (r Runner) readLines() string {
 		result = append(result, input)
 	}
 	return strings.Join(result, "\n")
+}
+
+// readLines reads multiple lines from the runner until the end-of-transmittion mark
+func (r Runner) readResponse() common.RunnerResponse {
+	return common.RunnerResponse{
+		Status:  common.GetStatus(r.readLine()),
+		Payload: r.readLines(),
+	}
 }

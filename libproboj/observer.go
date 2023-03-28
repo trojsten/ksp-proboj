@@ -2,6 +2,7 @@ package libproboj
 
 import (
 	"fmt"
+	"github.com/trojsten/ksp-proboj/common"
 	"strings"
 )
 
@@ -11,11 +12,11 @@ type Scores map[string]int
 func (r Runner) ToObserver(data string) RunnerResponse {
 	r.sendCommand("TO OBSERVER", data)
 
-	response := r.readLine()
-	if response == "OK" {
+	response := r.readResponse()
+	if response.Status == common.Ok {
 		return Ok
 	}
-	r.Log(fmt.Sprintf("unknown response to cmd 'TO OBSERVER' from runner: %s", response))
+	r.Log(fmt.Sprintf("unknown response to cmd 'TO OBSERVER' from runner: %s", response.String()))
 	return Unknown
 }
 
@@ -27,4 +28,8 @@ func (r Runner) Scores(scores Scores) {
 	}
 
 	r.sendCommand("SCORES", strings.Join(payload, "\n"))
+	response := r.readResponse()
+	if response.Status != common.Ok {
+		r.Log(fmt.Sprintf("unknown response to cmd 'SCORES' from runner: %s", response.String()))
+	}
 }
