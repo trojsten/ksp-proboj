@@ -30,6 +30,8 @@ func NewProbojProcess(command string, dir string, logConfig LogConfig) (pp Probo
 	pp.Process = &proc
 
 	pp.stdoutScanner = bufio.NewScanner(pp.Process.Stdout)
+	buf := make([]byte, 0, 64*1024)
+	pp.stdoutScanner.Buffer(buf, 1024*1024)
 
 	if logConfig.Enabled {
 		pp.stderrScanner = bufio.NewScanner(pp.Process.Stderr)
