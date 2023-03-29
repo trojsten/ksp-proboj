@@ -16,15 +16,6 @@ type ProbojProcess struct {
 	logMutex      *sync.Mutex
 }
 
-func probojSplitFunc(buffer []byte, eof bool) (int, []byte, error) {
-	before, _, found := strings.Cut(string(buffer), "\n.\n")
-	if !found {
-		return 0, nil, nil
-	}
-	token := []byte(before)
-	return len(token) + 3, token, nil // + 3 so we also advance over "\n.\n"
-}
-
 func NewProbojProcess(command string, dir string, logConfig LogConfig) (pp ProbojProcess, err error) {
 	proc, err := NewProcess(Options{
 		Command: command,
@@ -39,7 +30,6 @@ func NewProbojProcess(command string, dir string, logConfig LogConfig) (pp Probo
 	pp.Process = &proc
 
 	pp.stdoutScanner = bufio.NewScanner(pp.Process.Stdout)
-	pp.stdoutScanner.Split(probojSplitFunc)
 
 	if logConfig.Enabled {
 		pp.stderrScanner = bufio.NewScanner(pp.Process.Stderr)
@@ -61,11 +51,26 @@ func (pp *ProbojProcess) Write(data string) error {
 	return err
 }
 
-func (pp *ProbojProcess) Read() (string, error) {
+func (pp *ProbojProcess) readLine() (string, error) {
 	if !pp.stdoutScanner.Scan() && pp.stdoutScanner.Err() != nil {
 		return "", pp.stdoutScanner.Err()
 	}
 	return pp.stdoutScanner.Text(), nil
+}
+
+func (pp *ProbojProcess) Read() (string, error) {
+	result := []string{}
+	for true {
+		input, err := pp.readLine()
+		if err != nil {
+			return "", err
+		}
+		if input == "." {
+			break
+		}
+		result = append(result, input)
+	}
+	return strings.Join(result, "\n"), nil
 }
 
 type ReadResult struct {
