@@ -1,6 +1,7 @@
 package process
 
 import (
+	"bufio"
 	"fmt"
 	"github.com/google/shlex"
 	"io"
@@ -118,4 +119,21 @@ func (p *Process) Kill() error {
 	}
 
 	return p.cmd.Process.Kill()
+}
+
+// readln returns a single line (without the ending \n)
+// from the input buffered reader.
+// An error is returned iff there is an error with the
+// buffered reader.
+func readln(r *bufio.Reader) (string, error) {
+	var (
+		isPrefix       = true
+		err      error = nil
+		line, ln []byte
+	)
+	for isPrefix && err == nil {
+		line, isPrefix, err = r.ReadLine()
+		ln = append(ln, line...)
+	}
+	return string(ln), err
 }

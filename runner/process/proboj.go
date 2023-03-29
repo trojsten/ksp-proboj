@@ -10,7 +10,7 @@ import (
 
 type ProbojProcess struct {
 	*Process
-	stdoutScanner *bufio.Scanner
+	stdoutReader  *bufio.Reader
 	stderrScanner *bufio.Scanner
 	log           log.Log
 	logMutex      *sync.Mutex
@@ -29,9 +29,7 @@ func NewProbojProcess(command string, dir string, logConfig LogConfig) (pp Probo
 	}
 	pp.Process = &proc
 
-	pp.stdoutScanner = bufio.NewScanner(pp.Process.Stdout)
-	buf := make([]byte, 0, 64*1024)
-	pp.stdoutScanner.Buffer(buf, 1024*1024)
+	pp.stdoutReader = bufio.NewReader(pp.Process.Stdout)
 
 	if logConfig.Enabled {
 		pp.stderrScanner = bufio.NewScanner(pp.Process.Stderr)
@@ -54,10 +52,7 @@ func (pp *ProbojProcess) Write(data string) error {
 }
 
 func (pp *ProbojProcess) readLine() (string, error) {
-	if !pp.stdoutScanner.Scan() && pp.stdoutScanner.Err() != nil {
-		return "", pp.stdoutScanner.Err()
-	}
-	return pp.stdoutScanner.Text(), nil
+	return readln(pp.stdoutReader)
 }
 
 func (pp *ProbojProcess) Read() (string, error) {
