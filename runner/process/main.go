@@ -7,7 +7,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
-	"path"
+	"path/filepath"
 )
 
 type Options struct {
@@ -37,13 +37,13 @@ func NewProcess(options Options) (p Process, err error) {
 		return
 	}
 
-	if !path.IsAbs(parts[0]) {
+	if !filepath.IsAbs(parts[0]) {
 		var wd string
 		wd, err = os.Getwd()
 		if err != nil {
 			return
 		}
-		parts[0] = path.Join(wd, parts[0])
+		parts[0] = filepath.Join(wd, parts[0])
 	}
 
 	p.cmd = exec.Command(parts[0], parts[1:]...)
