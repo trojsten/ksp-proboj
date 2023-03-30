@@ -6,13 +6,25 @@ import (
 )
 
 func (r Runner) ReadConfig() ([]string, string) {
-	line := r.readLine()
+	line, err := r.readLine()
+	if err != nil {
+		panic(fmt.Errorf("error while reading config: %s", err.Error()))
+	}
 	if line != "CONFIG" {
 		panic(fmt.Errorf("expected CONFIG, got %s", line))
 	}
 
-	players := strings.Split(r.readLine(), " ")
-	data := r.readLines()
+	pl, err := r.readLine()
+	if err != nil {
+		panic(fmt.Errorf("error while reading config: %s", err.Error()))
+	}
+
+	players := strings.Split(pl, " ")
+	data, err := r.readLines()
+	if err != nil {
+		panic(fmt.Errorf("error while reading config: %s", err.Error()))
+	}
+	
 	return players, data
 }
 

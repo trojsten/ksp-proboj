@@ -11,7 +11,11 @@ import (
 func (r Runner) ToPlayer(player string, comment string, data string) RunnerResponse {
 	r.sendCommandWithArgs("TO PLAYER", []string{player, comment}, data)
 
-	response := r.readResponse()
+	response, err := r.readResponse()
+	if err != nil {
+		r.Log(fmt.Sprintf("error while reading response: %s", err.Error()))
+		return Unknown
+	}
 	if response.Status == common.Ok {
 		return Ok
 	} else if response.Status == common.Died {
@@ -25,7 +29,12 @@ func (r Runner) ToPlayer(player string, comment string, data string) RunnerRespo
 func (r Runner) ReadPlayer(player string) (RunnerResponse, string) {
 	r.sendCommandWithArgs("READ PLAYER", []string{player}, "")
 
-	response := r.readResponse()
+	response, err := r.readResponse()
+	if err != nil {
+		r.Log(fmt.Sprintf("error while reading response: %s", err.Error()))
+		return Unknown, ""
+	}
+
 	if response.Status == common.Ok {
 		return Ok, response.Payload
 	} else if response.Status == common.Died {
@@ -39,7 +48,12 @@ func (r Runner) ReadPlayer(player string) (RunnerResponse, string) {
 func (r Runner) KillPlayer(player string) RunnerResponse {
 	r.sendCommandWithArgs("KILL PLAYER", []string{player}, "")
 
-	response := r.readResponse()
+	response, err := r.readResponse()
+	if err != nil {
+		r.Log(fmt.Sprintf("error while reading response: %s", err.Error()))
+		return Unknown
+	}
+
 	if response.Status == common.Ok {
 		return Ok
 	}

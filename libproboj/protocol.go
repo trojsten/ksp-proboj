@@ -3,6 +3,7 @@ package libproboj
 import (
 	"fmt"
 	"github.com/trojsten/ksp-proboj/common"
+	"io"
 	"strings"
 )
 
@@ -20,28 +21,47 @@ func (r Runner) sendCommandWithArgs(command string, args []string, payload strin
 }
 
 // readLine reads one line from the runner
-func (r Runner) readLine() string {
-	r.scanner.Scan()
-	return r.scanner.Text()
+func (r Runner) readLine() (string, error) {
+	if !r.scanner.Scan() {
+		if r.scanner.Err() != nil {
+			return "", r.scanner.Err()
+		} else {
+			return "", io.EOF
+		}
+	}
+	return r.scanner.Text(), nil
 }
 
 // readLines reads multiple lines from the runner until the end-of-transmittion mark
-func (r Runner) readLines() string {
+func (r Runner) readLines() (string, error) {
 	result := []string{}
 	for true {
-		input := r.readLine()
+		input, err := r.readLine()
+		if err != nil {
+			return "", err
+		}
 		if input == "." {
 			break
 		}
 		result = append(result, input)
 	}
-	return strings.Join(result, "\n")
+	return strings.Join(result, "\n"), nil
 }
 
 // readLines reads multiple lines from the runner until the end-of-transmittion mark
-func (r Runner) readResponse() common.RunnerResponse {
-	return common.RunnerResponse{
-		Status:  common.GetStatus(r.readLine()),
-		Payload: r.readLines(),
+func (r Runner) readResponse() (common.RunnerResponse, error) {
+	line, err := r.readLine()
+	if err != nil {
+		return common.RunnerResponse{}, err
 	}
+
+	lines, err := r.readLines()
+	if err != nil {
+		return common.RunnerResponse{}, err
+	}
+
+	return common.RunnerResponse{
+		Status:  common.GetStatus(line),
+		Payload: lines,
+	}, nil
 }

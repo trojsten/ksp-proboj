@@ -12,7 +12,11 @@ type Scores map[string]int
 func (r Runner) ToObserver(data string) RunnerResponse {
 	r.sendCommand("TO OBSERVER", data)
 
-	response := r.readResponse()
+	response, err := r.readResponse()
+	if err != nil {
+		r.Log(fmt.Sprintf("error while reading response: %s", err.Error()))
+		return Unknown
+	}
 	if response.Status == common.Ok {
 		return Ok
 	}
@@ -28,7 +32,11 @@ func (r Runner) Scores(scores Scores) {
 	}
 
 	r.sendCommand("SCORES", strings.Join(payload, "\n"))
-	response := r.readResponse()
+	response, err := r.readResponse()
+	if err != nil {
+		r.Log(fmt.Sprintf("error while reading response: %s", err.Error()))
+		return
+	}
 	if response.Status != common.Ok {
 		r.Log(fmt.Sprintf("unknown response to cmd 'SCORES' from runner: %s", response.String()))
 	}
