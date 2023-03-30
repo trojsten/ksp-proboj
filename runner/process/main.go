@@ -74,13 +74,13 @@ func NewProcess(options Options) (p Process, err error) {
 }
 
 func (p *Process) run() error {
+	setProcessGroupID(p.cmd)
 	err := p.cmd.Start()
 	if err != nil {
 		return err
 	}
 
 	p.pid = p.cmd.Process.Pid
-	setProcessGroupID(p.cmd)
 
 	err = p.cmd.Wait()
 	if exiterr, ok := err.(*exec.ExitError); ok {
