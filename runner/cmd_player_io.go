@@ -35,12 +35,24 @@ func cmdToPlayer(m *Match, args []string, payload string) common.RunnerResponse 
 	}
 
 	m.logger.Debug("Sending data to player", "player", player)
-	err = proc.Write(fmt.Sprintf("%s\n.\n", payload))
-	if err != nil {
-		m.logger.Error("Failed writing data to player", "player", player, "err", err)
+	select {
+	case <-time.After(time.Second):
+		m.logger.Error("Write timeouted", "player", player, "err", err)
+		err := proc.Kill()
+		if err != nil {
+			m.logger.Error("Failed to kill player", "player", player, "err", err)
+		}
 		return common.RunnerResponse{Status: common.Error}
+	case <-proc.OnExit():
+		m.logger.Warn("Player died", "player", player, "exit", proc.Exit, "err", proc.Error)
+		return common.RunnerResponse{Status: common.Died}
+	case err := <-proc.AsyncWrite(fmt.Sprintf("%s\n.\n", payload)):
+		if err != nil {
+			m.logger.Error("Failed writing data to player", "player", player, "err", err)
+			return common.RunnerResponse{Status: common.Error}
+		}
+		return common.RunnerResponse{Status: common.Ok}
 	}
-	return common.RunnerResponse{Status: common.Ok}
 }
 
 func cmdReadPlayer(m *Match, args []string, _ string) common.RunnerResponse {

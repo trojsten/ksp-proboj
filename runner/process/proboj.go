@@ -47,8 +47,17 @@ func (pp *ProbojProcess) Write(data string) error {
 	if !pp.IsRunning() {
 		return fmt.Errorf("process is not running")
 	}
+
 	_, err := pp.Process.Stdin.Write([]byte(data))
 	return err
+}
+
+func (pp *ProbojProcess) AsyncWrite(data string) <-chan error {
+	ch := make(chan error)
+	go func() {
+		ch <- pp.Write(data)
+	}()
+	return ch
 }
 
 func (pp *ProbojProcess) readLine() (string, error) {
