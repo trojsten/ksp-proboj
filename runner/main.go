@@ -32,6 +32,8 @@ func main() {
 		log.SetLevel(log.DebugLevel)
 	}
 
+	registerSignals()
+
 	configFilename := flag.Arg(0)
 	gamesFilename := flag.Arg(1)
 
@@ -67,4 +69,6 @@ func main() {
 	} else {
 		runSequentially(config, games)
 	}
+
+	<-finish
 }

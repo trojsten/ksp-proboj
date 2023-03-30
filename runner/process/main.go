@@ -49,6 +49,7 @@ func NewProcess(options Options) (p Process, err error) {
 
 	p.cmd = exec.Command(parts[0], parts[1:]...)
 	p.cmd.Dir = options.Dir
+	setProcessGroupID(p.cmd)
 
 	if options.Stdin {
 		p.Stdin, err = p.cmd.StdinPipe()
@@ -74,7 +75,6 @@ func NewProcess(options Options) (p Process, err error) {
 }
 
 func (p *Process) run() error {
-	setProcessGroupID(p.cmd)
 	err := p.cmd.Start()
 	if err != nil {
 		return err
@@ -118,7 +118,7 @@ func (p *Process) IsRunning() bool {
 }
 
 func (p *Process) Kill() error {
-	if !p.IsRunning() {
+	if !p.IsRunning() || p.pid == 0 {
 		return fmt.Errorf("process is not running")
 	}
 

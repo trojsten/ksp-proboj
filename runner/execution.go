@@ -2,10 +2,7 @@ package main
 
 func (m *Match) Run() {
 	defer func(m *Match) {
-		err := m.teardown()
-		if err != nil {
-			m.logger.Error("Error in teardown", "err", err)
-		}
+		m.teardown()
 	}(m)
 
 	err := m.preflight()
