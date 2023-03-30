@@ -11,7 +11,7 @@ func (m *Match) teardown() (err error) {
 
 	for name, process := range m.Players {
 		m.logger.Debug("Killing player", "player", name)
-		if process.IsRunning() && process.Process != nil {
+		if process.IsRunning() {
 			err := process.Kill()
 			if err != nil {
 				m.logger.Error("Could not kill player", "err", err)

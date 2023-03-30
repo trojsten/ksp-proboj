@@ -24,6 +24,7 @@ type Process struct {
 	Stdout io.ReadCloser
 	Stderr io.ReadCloser
 
+	pid      int
 	started  bool
 	ended    bool
 	exitChan chan struct{} // closed on process exit
@@ -78,6 +79,9 @@ func (p *Process) run() error {
 		return err
 	}
 
+	p.pid = p.cmd.Process.Pid
+	setProcessGroupID(p.cmd)
+
 	err = p.cmd.Wait()
 	if exiterr, ok := err.(*exec.ExitError); ok {
 		p.Exit = exiterr.ExitCode()
@@ -118,7 +122,7 @@ func (p *Process) Kill() error {
 		return fmt.Errorf("process is not running")
 	}
 
-	return p.cmd.Process.Kill()
+	return terminateProcess(p.pid)
 }
 
 // readln returns a single line (without the ending \n)
