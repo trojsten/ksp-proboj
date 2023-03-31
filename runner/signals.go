@@ -9,8 +9,6 @@ import (
 var runningMatches []*Match
 var receivedKillSignal = false
 
-var finish chan struct{}
-
 func signalMatchStart(m *Match) {
 	runningMatches = append(runningMatches, m)
 }
@@ -26,7 +24,6 @@ func signalMatchEnd(m *Match) {
 
 func registerSignals() {
 	ch := make(chan os.Signal)
-	finish = make(chan struct{})
 	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
 
 	go func() {
@@ -38,6 +35,5 @@ func registerSignals() {
 				match.logger.Error("Could not kill server", "err", err)
 			}
 		}
-		close(finish)
 	}()
 }

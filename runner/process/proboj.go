@@ -30,10 +30,10 @@ func NewProbojProcess(command string, dir string, logConfig LogConfig) (pp Probo
 	pp.Process = &proc
 
 	pp.stdoutReader = bufio.NewReader(pp.Process.Stdout)
+	pp.logMutex = &sync.Mutex{}
 
 	if logConfig.Enabled {
 		pp.stderrScanner = bufio.NewScanner(pp.Process.Stderr)
-		pp.logMutex = &sync.Mutex{}
 		pp.log = logConfig.Log
 		go pp.stderrLoop()
 		go pp.closeLogOnExit()

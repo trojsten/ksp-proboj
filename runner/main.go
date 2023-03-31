@@ -69,6 +69,4 @@ func main() {
 	} else {
 		runSequentially(config, games)
 	}
-
-	<-finish
 }
