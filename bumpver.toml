@@ -1,0 +1,20 @@
+[bumpver]
+current_version = "23.1001"
+version_pattern = "0Y.BUILD"
+commit_message = "bump version {old_version} -> {new_version}"
+tag_message = "{new_version}"
+tag_scope = "default"
+pre_commit_hook = ""
+post_commit_hook = ""
+commit = true
+tag = true
+push = true
+
+[bumpver.file_patterns]
+"runner/version.go" = [
+    'const VERSION = "{version}"',
+]
+"bumpver.toml" = [
+    'current_version = "{version}"',
+]
+

@@ -11,6 +11,7 @@ import (
 
 func printUsage() {
 	fmt.Fprintf(os.Stderr, "Usage: %s [options] config games\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "Version: %v\n\n", VERSION)
 	flag.PrintDefaults()
 }
 
