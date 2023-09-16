@@ -24,7 +24,7 @@ func cmdScores(m *Match, _ []string, payload string) libproboj.RunnerResponse {
 		scores[player] = score
 	}
 
-	fileName := path.Join(m.Directory, "score")
+	fileName := path.Join(m.Directory, "score.json")
 	file, err := os.Create(fileName)
 	if err != nil {
 		m.logger.Error("Could not open score file", "err", err)
