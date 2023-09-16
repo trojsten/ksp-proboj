@@ -2,8 +2,8 @@ package main
 
 import (
 	"github.com/charmbracelet/log"
-	log2 "github.com/trojsten/ksp-proboj/runner/log"
 	"github.com/trojsten/ksp-proboj/runner/process"
+	"path"
 )
 
 type Config struct {
@@ -22,14 +22,21 @@ type Game struct {
 }
 
 type Match struct {
-	Game      Game
-	Config    Config
-	Server    process.ProbojProcess
-	Players   map[string]*process.ProbojProcess
-	Directory string
-	logger    log.Logger
-	started   bool
-	ended     bool
+	Game    Game
+	Config  Config
+	Server  process.ProbojProcess
+	Players map[string]*process.ProbojProcess
+	Log     log.Logger
+	Started bool
+	Ended   bool
 
-	observer log2.Log
+	Observer Observer
+}
+
+func (m *Match) Directory() string {
+	return path.Join(m.Config.GameRoot, m.Game.Gamefolder)
+}
+
+func NewMatch(config Config, game Game) *Match {
+	return &Match{Game: game, Config: config, Players: map[string]*process.ProbojProcess{}}
 }

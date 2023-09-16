@@ -5,12 +5,7 @@ func runSequentially(config Config, games []Game) {
 		if receivedKillSignal {
 			return
 		}
-		match := &Match{
-			Game:   game,
-			Config: config,
-		}
-		signalMatchStart(match)
+		match := NewMatch(config, game)
 		match.Run()
-		signalMatchEnd(match)
 	}
 }

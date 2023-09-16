@@ -32,7 +32,7 @@ func registerSignals() {
 		for _, match := range runningMatches {
 			err := match.Server.Kill()
 			if err != nil {
-				match.logger.Error("Could not kill server", "err", err)
+				match.Log.Error("Could not kill server", "err", err)
 			}
 		}
 	}()
