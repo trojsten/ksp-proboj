@@ -1,8 +1,8 @@
-package libproboj
+package client
 
 import (
 	"fmt"
-	"github.com/trojsten/ksp-proboj/common"
+	"github.com/trojsten/ksp-proboj/libproboj"
 )
 
 // ToPlayer sends the given data to the player.
@@ -16,9 +16,9 @@ func (r Runner) ToPlayer(player string, comment string, data string) RunnerRespo
 		r.Log(fmt.Sprintf("error while reading response: %s", err.Error()))
 		return Unknown
 	}
-	if response.Status == common.Ok {
+	if response.Status == libproboj.Ok {
 		return Ok
-	} else if response.Status == common.Died {
+	} else if response.Status == libproboj.Died {
 		return Died
 	}
 	r.Log(fmt.Sprintf("unknown response to cmd 'TO PLAYER' from runner: %s", response.String()))
@@ -35,9 +35,9 @@ func (r Runner) ReadPlayer(player string) (RunnerResponse, string) {
 		return Unknown, ""
 	}
 
-	if response.Status == common.Ok {
+	if response.Status == libproboj.Ok {
 		return Ok, response.Payload
-	} else if response.Status == common.Died {
+	} else if response.Status == libproboj.Died {
 		return Died, ""
 	}
 	r.Log(fmt.Sprintf("unknown response to cmd 'READ PLAYER' from runner: %s", response.String()))
@@ -54,7 +54,7 @@ func (r Runner) KillPlayer(player string) RunnerResponse {
 		return Unknown
 	}
 
-	if response.Status == common.Ok {
+	if response.Status == libproboj.Ok {
 		return Ok
 	}
 	r.Log(fmt.Sprintf("unknown response to cmd 'KILL PLAYER' from runner: %s", response.String()))

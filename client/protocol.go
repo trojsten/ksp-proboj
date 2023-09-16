@@ -1,8 +1,8 @@
-package libproboj
+package client
 
 import (
 	"fmt"
-	"github.com/trojsten/ksp-proboj/common"
+	"github.com/trojsten/ksp-proboj/libproboj"
 	"io"
 	"strings"
 )
@@ -49,19 +49,19 @@ func (r Runner) readLines() (string, error) {
 }
 
 // readLines reads multiple lines from the runner until the end-of-transmittion mark
-func (r Runner) readResponse() (common.RunnerResponse, error) {
+func (r Runner) readResponse() (libproboj.RunnerResponse, error) {
 	line, err := r.readLine()
 	if err != nil {
-		return common.RunnerResponse{}, err
+		return libproboj.RunnerResponse{}, err
 	}
 
 	lines, err := r.readLines()
 	if err != nil {
-		return common.RunnerResponse{}, err
+		return libproboj.RunnerResponse{}, err
 	}
 
-	return common.RunnerResponse{
-		Status:  common.GetStatus(line),
+	return libproboj.RunnerResponse{
+		Status:  libproboj.GetStatus(line),
 		Payload: lines,
 	}, nil
 }

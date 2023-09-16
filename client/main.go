@@ -1,4 +1,4 @@
-package libproboj
+package client
 
 import (
 	"bufio"

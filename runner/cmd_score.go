@@ -3,13 +3,13 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/trojsten/ksp-proboj/common"
+	"github.com/trojsten/ksp-proboj/libproboj"
 	"os"
 	"path"
 	"strings"
 )
 
-func cmdScores(m *Match, _ []string, payload string) common.RunnerResponse {
+func cmdScores(m *Match, _ []string, payload string) libproboj.RunnerResponse {
 	lines := strings.Split(payload, "\n")
 	scores := map[string]int{}
 	for _, line := range lines {
@@ -18,7 +18,7 @@ func cmdScores(m *Match, _ []string, payload string) common.RunnerResponse {
 		_, err := fmt.Sscanf(line, "%s %d", &player, &score)
 		if err != nil {
 			m.logger.Warn("Could not parse score data", "err", err)
-			return common.RunnerResponse{Status: common.Error}
+			return libproboj.RunnerResponse{Status: libproboj.Error}
 		}
 
 		scores[player] = score
@@ -28,7 +28,7 @@ func cmdScores(m *Match, _ []string, payload string) common.RunnerResponse {
 	file, err := os.Create(fileName)
 	if err != nil {
 		m.logger.Error("Could not open score file", "err", err)
-		return common.RunnerResponse{Status: common.Error}
+		return libproboj.RunnerResponse{Status: libproboj.Error}
 	}
 	defer func(file *os.File) {
 		err := file.Close()
@@ -40,13 +40,13 @@ func cmdScores(m *Match, _ []string, payload string) common.RunnerResponse {
 	data, err := json.Marshal(scores)
 	if err != nil {
 		m.logger.Error("Error while marshalling score data", "err", err)
-		return common.RunnerResponse{Status: common.Error}
+		return libproboj.RunnerResponse{Status: libproboj.Error}
 	}
 	_, err = file.Write(data)
 	if err != nil {
 		m.logger.Error("Error while saving score data", "err", err)
-		return common.RunnerResponse{Status: common.Error}
+		return libproboj.RunnerResponse{Status: libproboj.Error}
 	}
 
-	return common.RunnerResponse{Status: common.Ok}
+	return libproboj.RunnerResponse{Status: libproboj.Ok}
 }

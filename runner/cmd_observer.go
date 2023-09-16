@@ -1,11 +1,11 @@
 package main
 
-import "github.com/trojsten/ksp-proboj/common"
+import "github.com/trojsten/ksp-proboj/libproboj"
 
-func cmdToObserver(m *Match, _ []string, payload string) common.RunnerResponse {
+func cmdToObserver(m *Match, _ []string, payload string) libproboj.RunnerResponse {
 	_, err := m.observer.Write([]byte(payload + "\n"))
 	if err != nil {
-		return common.RunnerResponse{Status: common.Error}
+		return libproboj.RunnerResponse{Status: libproboj.Error}
 	}
-	return common.RunnerResponse{Status: common.Ok}
+	return libproboj.RunnerResponse{Status: libproboj.Ok}
 }

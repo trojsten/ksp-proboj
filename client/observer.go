@@ -1,8 +1,8 @@
-package libproboj
+package client
 
 import (
 	"fmt"
-	"github.com/trojsten/ksp-proboj/common"
+	"github.com/trojsten/ksp-proboj/libproboj"
 	"strings"
 )
 
@@ -17,7 +17,7 @@ func (r Runner) ToObserver(data string) RunnerResponse {
 		r.Log(fmt.Sprintf("error while reading response: %s", err.Error()))
 		return Unknown
 	}
-	if response.Status == common.Ok {
+	if response.Status == libproboj.Ok {
 		return Ok
 	}
 	r.Log(fmt.Sprintf("unknown response to cmd 'TO OBSERVER' from runner: %s", response.String()))
@@ -37,7 +37,7 @@ func (r Runner) Scores(scores Scores) {
 		r.Log(fmt.Sprintf("error while reading response: %s", err.Error()))
 		return
 	}
-	if response.Status != common.Ok {
+	if response.Status != libproboj.Ok {
 		r.Log(fmt.Sprintf("unknown response to cmd 'SCORES' from runner: %s", response.String()))
 	}
 }

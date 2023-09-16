@@ -1,11 +1,11 @@
 package main
 
 import (
-	"github.com/trojsten/ksp-proboj/common"
+	"github.com/trojsten/ksp-proboj/libproboj"
 	"strings"
 )
 
-type handlerFunc func(m *Match, args []string, payload string) common.RunnerResponse
+type handlerFunc func(m *Match, args []string, payload string) libproboj.RunnerResponse
 
 var Handlers = map[string]handlerFunc{
 	"TO PLAYER":   cmdToPlayer,
@@ -28,7 +28,7 @@ func (m *Match) parseCommand(data string) {
 		args := strings.Split(strings.TrimSpace(strings.TrimPrefix(cmd, prefix)), " ")
 		m.logger.Debug("Using command handler", "handler", prefix, "args", args)
 		response := handler(m, args, payload)
-		if response.Status == common.Ignore {
+		if response.Status == libproboj.Ignore {
 			return
 		}
 

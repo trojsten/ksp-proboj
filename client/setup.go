@@ -1,4 +1,4 @@
-package libproboj
+package client
 
 import (
 	"fmt"
@@ -24,7 +24,7 @@ func (r Runner) ReadConfig() ([]string, string) {
 	if err != nil {
 		panic(fmt.Errorf("error while reading config: %s", err.Error()))
 	}
-	
+
 	return players, data
 }
 
