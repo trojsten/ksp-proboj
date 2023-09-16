@@ -60,3 +60,37 @@ func (r Runner) KillPlayer(player string) RunnerResponse {
 	r.Log(fmt.Sprintf("unknown response to cmd 'KILL PLAYER' from runner: %s", response.String()))
 	return Unknown
 }
+
+// PausePlayer instructs the runner to pause player's process
+func (r Runner) PausePlayer(player string) RunnerResponse {
+	r.sendCommandWithArgs("PAUSE PLAYER", []string{player}, "")
+
+	response, err := r.readResponse()
+	if err != nil {
+		r.Log(fmt.Sprintf("error while reading response: %s", err.Error()))
+		return Unknown
+	}
+
+	if response.Status == libproboj.Ok {
+		return Ok
+	}
+	r.Log(fmt.Sprintf("unknown response to cmd 'PAUSE PLAYER' from runner: %s", response.String()))
+	return Unknown
+}
+
+// ResumePlayer instructs the runner to resume player's process
+func (r Runner) ResumePlayer(player string) RunnerResponse {
+	r.sendCommandWithArgs("RESUME PLAYER", []string{player}, "")
+
+	response, err := r.readResponse()
+	if err != nil {
+		r.Log(fmt.Sprintf("error while reading response: %s", err.Error()))
+		return Unknown
+	}
+
+	if response.Status == libproboj.Ok {
+		return Ok
+	}
+	r.Log(fmt.Sprintf("unknown response to cmd 'RESUME PLAYER' from runner: %s", response.String()))
+	return Unknown
+}

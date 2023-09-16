@@ -16,6 +16,16 @@ func terminateProcess(pid int) error {
 	return p.Kill()
 }
 
+func pauseProcess(pid int) error {
+	// there is no way afaik to pause process on windows :(
+	return nil
+}
+
+func resumeProcess(pid int) error {
+	// there is no way afaik to resume process on windows :(
+	return nil
+}
+
 func setProcessGroupID(cmd *exec.Cmd) {
 	cmd.SysProcAttr = &syscall.SysProcAttr{}
 }

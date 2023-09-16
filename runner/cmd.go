@@ -8,12 +8,14 @@ import (
 type handlerFunc func(m *Match, args []string, payload string) libproboj.RunnerResponse
 
 var Handlers = map[string]handlerFunc{
-	"TO PLAYER":   cmdToPlayer,
-	"READ PLAYER": cmdReadPlayer,
-	"TO OBSERVER": cmdToObserver,
-	"KILL PLAYER": cmdKillPlayer,
-	"SCORES":      cmdScores,
-	"END":         cmdEnd,
+	"TO PLAYER":     cmdToPlayer,
+	"READ PLAYER":   cmdReadPlayer,
+	"TO OBSERVER":   cmdToObserver,
+	"KILL PLAYER":   cmdKillPlayer,
+	"PAUSE PLAYER":  cmdPausePlayer,
+	"RESUME PLAYER": cmdResumePlayer,
+	"SCORES":        cmdScores,
+	"END":           cmdEnd,
 }
 
 func (m *Match) parseCommand(data string) {

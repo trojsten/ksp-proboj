@@ -125,6 +125,22 @@ func (p *Process) Kill() error {
 	return terminateProcess(p.pid)
 }
 
+func (p *Process) Pause() error {
+	if !p.IsRunning() || p.pid == 0 {
+		return fmt.Errorf("process is not running")
+	}
+
+	return pauseProcess(p.pid)
+}
+
+func (p *Process) Resume() error {
+	if !p.IsRunning() || p.pid == 0 {
+		return fmt.Errorf("process is not running")
+	}
+
+	return resumeProcess(p.pid)
+}
+
 // readln returns a single line (without the ending \n)
 // from the input buffered reader.
 // An error is returned iff there is an error with the
