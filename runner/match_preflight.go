@@ -12,7 +12,7 @@ import (
 
 func (m *Match) preflight() error {
 	if m.Started {
-		return fmt.Errorf("the match was already Started")
+		return fmt.Errorf("the match was already started")
 	}
 	signalMatchStart(m)
 	m.Started = true
