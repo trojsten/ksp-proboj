@@ -20,7 +20,7 @@ var Handlers = map[string]handlerFunc{
 
 func (m *Match) parseCommand(data string) {
 	cmd, payload, _ := strings.Cut(data, "\n")
-	m.logger.Debug("Parsing command", "cmd", cmd)
+	m.Log.Debug("Parsing command", "cmd", cmd)
 
 	for prefix, handler := range Handlers {
 		if !strings.HasPrefix(cmd, prefix) {
@@ -28,7 +28,7 @@ func (m *Match) parseCommand(data string) {
 		}
 
 		args := strings.Split(strings.TrimSpace(strings.TrimPrefix(cmd, prefix)), " ")
-		m.logger.Debug("Using command handler", "handler", prefix, "args", args)
+		m.Log.Debug("Using command handler", "handler", prefix, "args", args)
 		response := handler(m, args, payload)
 		if response.Status == libproboj.Ignore {
 			return
@@ -36,10 +36,10 @@ func (m *Match) parseCommand(data string) {
 
 		err := m.Server.Write(response.String())
 		if err != nil {
-			m.logger.Error("Failed writing response back to the server", "err", err)
+			m.Log.Error("Failed writing response back to the server", "err", err)
 		}
 		return
 	}
 
-	m.logger.Warn("Server sent unknown command", "cmd", cmd)
+	m.Log.Warn("Server sent unknown command", "cmd", cmd)
 }

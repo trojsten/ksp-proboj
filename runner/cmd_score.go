@@ -15,36 +15,38 @@ func cmdScores(m *Match, _ []string, payload string) libproboj.RunnerResponse {
 	for _, line := range lines {
 		var player string
 		var score int
+
 		_, err := fmt.Sscanf(line, "%s %d", &player, &score)
 		if err != nil {
-			m.logger.Warn("Could not parse score data", "err", err)
+			m.Log.Warn("Could not parse score data", "err", err)
 			return libproboj.RunnerResponse{Status: libproboj.Error}
 		}
 
 		scores[player] = score
 	}
 
-	fileName := path.Join(m.Directory, "score.json")
+	fileName := path.Join(m.Directory(), "score.json")
 	file, err := os.Create(fileName)
 	if err != nil {
-		m.logger.Error("Could not open score file", "err", err)
+		m.Log.Error("Could not open score file", "err", err)
 		return libproboj.RunnerResponse{Status: libproboj.Error}
 	}
 	defer func(file *os.File) {
 		err := file.Close()
 		if err != nil {
-			m.logger.Error("Error while closing score file", "err", err)
+			m.Log.Error("Error while closing score file", "err", err)
 		}
 	}(file)
 
 	data, err := json.Marshal(scores)
 	if err != nil {
-		m.logger.Error("Error while marshalling score data", "err", err)
+		m.Log.Error("Error while marshalling score data", "err", err)
 		return libproboj.RunnerResponse{Status: libproboj.Error}
 	}
+
 	_, err = file.Write(data)
 	if err != nil {
-		m.logger.Error("Error while saving score data", "err", err)
+		m.Log.Error("Error while saving score data", "err", err)
 		return libproboj.RunnerResponse{Status: libproboj.Error}
 	}
 

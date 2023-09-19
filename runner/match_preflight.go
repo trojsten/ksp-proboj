@@ -11,22 +11,22 @@ import (
 )
 
 func (m *Match) preflight() error {
-	if m.started {
+	if m.Started {
 		return fmt.Errorf("the match was already started")
 	}
-	m.started = true
-	m.logger = log.With()
-	m.Directory = path.Join(m.Config.GameRoot, m.Game.Gamefolder)
-	m.logger.SetPrefix(m.Game.Gamefolder)
+	signalMatchStart(m)
+	m.Started = true
+	m.Log = log.With()
+	m.Log.SetPrefix(m.Game.Gamefolder)
 
 	// Create folders
-	err := os.MkdirAll(m.Directory, 0o755)
+	err := os.MkdirAll(m.Directory(), 0o755)
 	if err != nil {
-		return fmt.Errorf("mkdir %s: %w", m.Directory, err)
+		return fmt.Errorf("mkdir %s: %w", m.Directory(), err)
 	}
-	err = os.MkdirAll(path.Join(m.Directory, "logs"), 0o755)
+	err = os.MkdirAll(path.Join(m.Directory(), "logs"), 0o755)
 	if err != nil {
-		return fmt.Errorf("mkdir %s/logs: %w", m.Directory, err)
+		return fmt.Errorf("mkdir %s/logs: %w", m.Directory(), err)
 	}
 
 	err = m.startServer()
@@ -39,7 +39,6 @@ func (m *Match) preflight() error {
 		return fmt.Errorf("send config to server: %w", err)
 	}
 
-	m.Players = map[string]*process.ProbojProcess{}
 	m.startPlayers()
 
 	err = m.openObserver()
@@ -55,19 +54,19 @@ func (m *Match) sendConfigToServer() error {
 }
 
 func (m *Match) startServer() (err error) {
-	m.logger.Debug("Creating server process", "server", m.Config.Server)
+	m.Log.Debug("Creating server process", "server", m.Config.Server)
 
 	logConfig, err := m.logConfig("__server")
 	if err != nil {
 		return
 	}
 
-	m.Server, err = process.NewProbojProcess(m.Config.Server, m.Directory, logConfig)
+	m.Server, err = process.NewProbojProcess(m.Config.Server, m.Directory(), logConfig)
 	if err != nil {
 		return
 	}
 
-	m.logger.Info("Starting server process")
+	m.Log.Info("Starting server process")
 	m.Server.Start()
 	return
 }
@@ -76,7 +75,7 @@ func (m *Match) startPlayers() {
 	for _, player := range m.Game.Players {
 		err := m.startPlayer(player)
 		if err != nil {
-			m.logger.Error("Failed to start player", "player", player, "err", err)
+			m.Log.Error("Failed to start player", "player", player, "err", err)
 		}
 	}
 }
@@ -92,7 +91,7 @@ func (m *Match) logConfig(name string) (process.LogConfig, error) {
 			suffix = "txt"
 		}
 
-		fileName := path.Join(m.Directory, "logs", fmt.Sprintf("%s.%s", name, suffix))
+		fileName := path.Join(m.Directory(), "logs", fmt.Sprintf("%s.%s", name, suffix))
 		file, err := os.Create(fileName)
 		if err != nil {
 			return process.LogConfig{}, err
@@ -121,26 +120,21 @@ func (m *Match) startPlayer(name string) error {
 		return err
 	}
 
-	m.logger.Debug("Creating player process", "player", name, "program", program)
-	proc, err := process.NewProbojProcess(program, m.Directory, logConfig)
+	m.Log.Debug("Creating player process", "player", name, "program", program)
+	proc, err := process.NewProbojProcess(program, m.Directory(), logConfig)
 	if err != nil {
 		return err
 	}
 
-	m.logger.Info("Starting player process", "player", name)
+	m.Log.Info("Starting player process", "player", name)
 	m.Players[name] = &proc
 	proc.Start()
 	return nil
 }
 
-func (m *Match) openObserver() error {
-	fileName := path.Join(m.Directory, "observer.gz")
-	m.logger.Debug("Opening observer file", "file", fileName)
-	file, err := os.Create(fileName)
-	if err != nil {
-		return err
-	}
-
-	m.observer, err = log2.NewGzipLog(file)
-	return err
+func (m *Match) openObserver() (err error) {
+	fileName := path.Join(m.Directory(), "observer.gz")
+	m.Log.Debug("Opening observer file", "file", fileName)
+	m.Observer, err = NewObserver(fileName)
+	return
 }

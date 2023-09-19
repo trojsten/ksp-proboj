@@ -14,9 +14,7 @@ func parellelWorker(ch <-chan *Match, wg *sync.WaitGroup) {
 		if receivedKillSignal {
 			continue
 		}
-		signalMatchStart(match)
 		match.Run()
-		signalMatchEnd(match)
 	}
 }
 
@@ -33,10 +31,7 @@ func runParallel(config Config, games []Game, concurrency int) {
 		if receivedKillSignal {
 			break
 		}
-		match := &Match{
-			Game:   game,
-			Config: config,
-		}
+		match := NewMatch(config, game)
 		ch <- match
 	}
 
