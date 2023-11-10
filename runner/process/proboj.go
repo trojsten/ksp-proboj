@@ -4,16 +4,17 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/trojsten/ksp-proboj/runner/log"
+	"io"
 	"strings"
 	"sync"
 )
 
 type ProbojProcess struct {
 	*Process
-	stdoutReader  *bufio.Reader
-	stderrScanner *bufio.Scanner
-	log           log.Log
-	logMutex      *sync.Mutex
+	stdoutReader *bufio.Reader
+	stderrReader *bufio.Reader
+	log          log.Log
+	logMutex     *sync.Mutex
 }
 
 func NewProbojProcess(command string, dir string, logConfig LogConfig) (pp ProbojProcess, err error) {
@@ -33,10 +34,9 @@ func NewProbojProcess(command string, dir string, logConfig LogConfig) (pp Probo
 	pp.logMutex = &sync.Mutex{}
 
 	if logConfig.Enabled {
-		pp.stderrScanner = bufio.NewScanner(pp.Process.Stderr)
+		pp.stderrReader = bufio.NewReader(pp.Process.Stderr)
 		pp.log = logConfig.Log
 		go pp.stderrLoop()
-		go pp.closeLogOnExit()
 	} else {
 		pp.log = log.NewNullLog()
 	}
@@ -104,14 +104,18 @@ func (pp *ProbojProcess) WriteLog(data string) error {
 }
 
 func (pp *ProbojProcess) stderrLoop() {
-	for pp.stderrScanner.Scan() {
-		// Write error ignored here.
-		_ = pp.WriteLog(fmt.Sprintf("%s\n", pp.stderrScanner.Text()))
+	for {
+		data, err := readln(pp.stderrReader)
+		if err != nil {
+			if err != io.EOF {
+				_ = pp.WriteLog(fmt.Sprintf("[proboj] error while reading stderr: %s\n", err.Error()))
+			}
+			break
+		}
+		_ = pp.WriteLog(fmt.Sprintf("%s\n", data))
 	}
-	if err := pp.stderrScanner.Err(); err != nil {
-		// Write error ignored here.
-		_ = pp.WriteLog(fmt.Sprintf("[proboj] error while scanning stderr: %s\n", err.Error()))
-	}
+
+	pp.closeLogOnExit()
 }
 
 func (pp *ProbojProcess) closeLogOnExit() {
