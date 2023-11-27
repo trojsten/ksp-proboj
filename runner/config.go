@@ -6,13 +6,18 @@ import (
 	"path"
 )
 
+type PlayerConf struct {
+	Command  string `json:"command"`
+	Language string `json:"language"`
+}
+
 type Config struct {
-	Server      string            `json:"server"`
-	Players     map[string]string `json:"players"`
-	Timeout     float64           `json:"timeout"`
-	DisableLogs bool              `json:"disable_logs"`
-	DisableGzip bool              `json:"disable_gzip"`
-	GameRoot    string            `json:"game_root"`
+	Server      string                `json:"server"`
+	Players     map[string]PlayerConf `json:"players"`
+	Timeout     map[string]float64    `json:"timeout"`
+	DisableLogs bool                  `json:"disable_logs"`
+	DisableGzip bool                  `json:"disable_gzip"`
+	GameRoot    string                `json:"game_root"`
 }
 
 type Game struct {

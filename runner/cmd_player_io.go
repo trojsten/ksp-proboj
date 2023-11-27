@@ -74,9 +74,12 @@ func cmdReadPlayer(m *Match, args []string, _ string) libproboj.RunnerResponse {
 		return libproboj.RunnerResponse{Status: libproboj.Died}
 	}
 
+	playerConf := m.Config.Players[player]
+	timeout := m.Config.Timeout[playerConf.Language]
+
 	m.Log.Debug("Reading data from player", "player", player)
 	select {
-	case <-time.After(time.Millisecond * time.Duration(m.Config.Timeout*1000)):
+	case <-time.After(time.Millisecond * time.Duration(timeout*1000)):
 		m.Log.Warn("Player timeouted", "player", player)
 		_ = proc.WriteLog(fmt.Sprintf("[proboj] killing process due to read timeout\n"))
 		err := proc.Kill()

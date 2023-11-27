@@ -110,7 +110,7 @@ func (m *Match) logConfig(name string) (process.LogConfig, error) {
 }
 
 func (m *Match) startPlayer(name string) error {
-	program, exists := m.Config.Players[name]
+	player, exists := m.Config.Players[name]
 	if !exists {
 		return fmt.Errorf("player %s not found in config", name)
 	}
@@ -120,8 +120,13 @@ func (m *Match) startPlayer(name string) error {
 		return err
 	}
 
-	m.Log.Debug("Creating player process", "player", name, "program", program)
-	proc, err := process.NewProbojProcess(program, m.Directory(), logConfig)
+	_, exists = m.Config.Timeout[player.Language]
+	if !exists {
+		return fmt.Errorf("language %s not found in config", player.Language)
+	}
+
+	m.Log.Debug("Creating player process", "player", name, "command", player.Command)
+	proc, err := process.NewProbojProcess(player.Command, m.Directory(), logConfig)
 	if err != nil {
 		return err
 	}
