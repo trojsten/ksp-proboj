@@ -38,6 +38,7 @@ func cmdToPlayer(m *Match, args []string, payload string) libproboj.RunnerRespon
 	select {
 	case <-time.After(time.Second):
 		m.Log.Error("Write timeouted", "player", player, "err", err)
+		_ = proc.WriteLog(fmt.Sprintf("[proboj] killing process due to write timeout\n"))
 		err := proc.Kill()
 		if err != nil {
 			m.Log.Error("Failed to kill player", "player", player, "err", err)
@@ -77,6 +78,7 @@ func cmdReadPlayer(m *Match, args []string, _ string) libproboj.RunnerResponse {
 	select {
 	case <-time.After(time.Millisecond * time.Duration(m.Config.Timeout*1000)):
 		m.Log.Warn("Player timeouted", "player", player)
+		_ = proc.WriteLog(fmt.Sprintf("[proboj] killing process due to read timeout\n"))
 		err := proc.Kill()
 		if err != nil {
 			m.Log.Error("Failed to kill player", "player", player, "err", err)
