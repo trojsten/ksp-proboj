@@ -33,6 +33,7 @@ func NewProbojProcess(command string, dir string, logConfig LogConfig) (pp Probo
 
 	pp.stdoutReader = bufio.NewReader(pp.Process.Stdout)
 	pp.logMutex = &sync.Mutex{}
+	pp.wait = &sync.WaitGroup{}
 
 	if logConfig.Enabled {
 		pp.stderrReader = bufio.NewReader(pp.Process.Stderr)
