@@ -15,6 +15,7 @@ func (m *Match) teardown() {
 		if err != nil {
 			m.Log.Error("Could not kill server")
 		}
+		m.Server.WaitForEnd()
 	}
 
 	for name, process := range m.Players {
@@ -25,6 +26,7 @@ func (m *Match) teardown() {
 				m.Log.Error("Could not kill player", "player", name, "err", err)
 			}
 		}
+		process.WaitForEnd()
 	}
 
 	signalMatchEnd(m)

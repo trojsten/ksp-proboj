@@ -15,6 +15,7 @@ type ProbojProcess struct {
 	stderrReader *bufio.Reader
 	log          log.Log
 	logMutex     *sync.Mutex
+	wait         *sync.WaitGroup
 }
 
 func NewProbojProcess(command string, dir string, logConfig LogConfig) (pp ProbojProcess, err error) {
@@ -104,6 +105,9 @@ func (pp *ProbojProcess) WriteLog(data string) error {
 }
 
 func (pp *ProbojProcess) stderrLoop() {
+	pp.wait.Add(1)
+	defer pp.wait.Done()
+
 	for {
 		data, err := readln(pp.stderrReader)
 		if err != nil {
@@ -125,4 +129,8 @@ func (pp *ProbojProcess) closeLogOnExit() {
 	pp.logMutex.Lock()
 	_, _ = pp.log.Write([]byte(fmt.Sprintf("[proboj] process terminated\n exit: %d\n err: %v\n", pp.Exit, pp.Error)))
 	_ = pp.log.Close()
+}
+
+func (pp *ProbojProcess) WaitForEnd() {
+	pp.wait.Wait()
 }
