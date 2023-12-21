@@ -27,6 +27,7 @@ type Process struct {
 	pid      int
 	started  bool
 	ended    bool
+	paused   bool
 	exitChan chan struct{} // closed on process exit
 	Exit     int
 	Error    error
@@ -122,6 +123,14 @@ func (p *Process) Kill() error {
 		return fmt.Errorf("process is not running")
 	}
 
+	// Killing paused process tends to have unknown consequences.
+	if p.IsPaused() {
+		err := p.Resume()
+		if err != nil {
+			return err
+		}
+	}
+
 	return terminateProcess(p.pid)
 }
 
@@ -130,6 +139,11 @@ func (p *Process) Pause() error {
 		return fmt.Errorf("process is not running")
 	}
 
+	if p.IsPaused() {
+		return fmt.Errorf("process is already paused")
+	}
+
+	p.paused = true
 	return pauseProcess(p.pid)
 }
 
@@ -138,7 +152,16 @@ func (p *Process) Resume() error {
 		return fmt.Errorf("process is not running")
 	}
 
+	if !p.IsPaused() {
+		return fmt.Errorf("process is not paused")
+	}
+
+	p.paused = false
 	return resumeProcess(p.pid)
+}
+
+func (p *Process) IsPaused() bool {
+	return p.paused
 }
 
 // readln returns a single line (without the ending \n)
