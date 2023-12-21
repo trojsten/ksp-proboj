@@ -36,7 +36,7 @@ func cmdToPlayer(m *Match, args []string, payload string) libproboj.RunnerRespon
 
 	m.Log.Debug("Sending data to player", "player", player)
 	select {
-	case <-time.After(time.Second):
+	case <-time.After(5 * time.Second):
 		m.Log.Error("Write timeouted", "player", player, "err", err)
 		_ = proc.WriteLog(fmt.Sprintf("[proboj] killing process due to write timeout\n"))
 		err := proc.Kill()
