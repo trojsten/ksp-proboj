@@ -1,10 +1,10 @@
 .PHONY: runner runner.exe runner_mac
 
-server:
+runner:
 	./build.sh
 
-server.exe:
+runner.exe:
 	GOOS=windows ./build.sh runner.exe
 
-server_mac:
+runner_mac:
 	GOOS=darwin ./build.sh runner_mac
