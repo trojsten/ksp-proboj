@@ -12,12 +12,13 @@ type PlayerConf struct {
 }
 
 type Config struct {
-	Server      string                `json:"server"`
-	Players     map[string]PlayerConf `json:"players"`
-	Timeout     map[string]float64    `json:"timeout"`
-	DisableLogs bool                  `json:"disable_logs"`
-	DisableGzip bool                  `json:"disable_gzip"`
-	GameRoot    string                `json:"game_root"`
+	Server             string                `json:"server"`
+	Players            map[string]PlayerConf `json:"players"`
+	ProcessesPerPlayer int                   `json:"processes_per_player"`
+	Timeout            map[string]float64    `json:"timeout"`
+	DisableLogs        bool                  `json:"disable_logs"`
+	DisableGzip        bool                  `json:"disable_gzip"`
+	GameRoot           string                `json:"game_root"`
 }
 
 type Game struct {

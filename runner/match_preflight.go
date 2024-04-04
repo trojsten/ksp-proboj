@@ -39,6 +39,11 @@ func (m *Match) preflight() error {
 		return fmt.Errorf("send config to server: %w", err)
 	}
 
+	err = m.preparePlayers()
+	if err != nil {
+		return fmt.Errorf("prepare players: %w", err)
+	}
+
 	m.startPlayers()
 
 	err = m.openObserver()
@@ -78,6 +83,32 @@ func (m *Match) startPlayers() {
 			m.Log.Error("Failed to start player", "player", player, "err", err)
 		}
 	}
+}
+
+func (m *Match) preparePlayers() error {
+	if m.Config.ProcessesPerPlayer <= 1 {
+		return nil
+	}
+
+	var newPlayers []string
+	newPlayerConfig := make(map[string]PlayerConf)
+
+	for _, player := range m.Game.Players {
+		for i := 0; i < m.Config.ProcessesPerPlayer; i++ {
+			playerName := fmt.Sprintf("%s_%d", player, i)
+			newPlayers = append(newPlayers, playerName)
+
+			if _, exists := m.Config.Players[player]; !exists {
+				return fmt.Errorf("player %s not found in config", player)
+			}
+			newPlayerConfig[playerName] = m.Config.Players[player]
+		}
+	}
+
+	m.Config.Players = newPlayerConfig
+	m.Game.Players = newPlayers
+
+	return nil
 }
 
 func (m *Match) logConfig(name string) (process.LogConfig, error) {

@@ -89,8 +89,9 @@ Runner chce dva konfiguračné súbory -- `config.json` a `games.json`.
 `config.json` hovorí o nastaveniach runnera. Aktuálne obsahuje tieto voľby:
 
 - `server`: cesta k binárke servera 
-- `players`: mapovanie názov hráča → cesta k jeho binárke
-- `timeout`: maximálny čas, ktorý môže hráč využiť pri čakaní na výstup
+- `players`: mapovanie názov hráča → cesta k jeho binárke a jazyk (`command`, `language`)
+- `processes_per_player`: počet procesov na hráča (default 1, ak viac, tak sa vyrobia `player_0`, `player_1`...)
+- `timeout`: maximálny čas, ktorý môže hráč využiť pri čakaní na výstup v sekundách, pre každý jazyk (mapping jazyk -> timeout)
 - `disable_logs`: ak je `true`, deaktivuje ukladanie logov hráčov a servera
 - `disable_gzip`: ak je `true`, deaktivuje gzipovanie logov
 - `game_root`: cesta, kde sa budú ukladať dáta hier
