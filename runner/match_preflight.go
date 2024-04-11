@@ -34,14 +34,14 @@ func (m *Match) preflight() error {
 		return fmt.Errorf("start server: %w", err)
 	}
 
-	err = m.sendConfigToServer()
-	if err != nil {
-		return fmt.Errorf("send config to server: %w", err)
-	}
-
 	err = m.preparePlayers()
 	if err != nil {
 		return fmt.Errorf("prepare players: %w", err)
+	}
+
+	err = m.sendConfigToServer()
+	if err != nil {
+		return fmt.Errorf("send config to server: %w", err)
 	}
 
 	m.startPlayers()
