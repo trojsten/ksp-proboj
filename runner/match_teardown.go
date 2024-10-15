@@ -1,5 +1,7 @@
 package main
 
+import "github.com/trojsten/ksp-proboj/runner/websockets"
+
 func (m *Match) teardown() {
 	var err error
 
@@ -29,5 +31,6 @@ func (m *Match) teardown() {
 		process.WaitForEnd()
 	}
 
+	websockets.Shutdown()
 	signalMatchEnd(m)
 }

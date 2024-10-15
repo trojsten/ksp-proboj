@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/trojsten/ksp-proboj/libproboj"
 	"strings"
 	"time"
+
+	"github.com/trojsten/ksp-proboj/libproboj"
+	"github.com/trojsten/ksp-proboj/runner/websockets"
 )
 
 func cmdToPlayer(m *Match, args []string, payload string) libproboj.RunnerResponse {
@@ -18,10 +20,19 @@ func cmdToPlayer(m *Match, args []string, payload string) libproboj.RunnerRespon
 		note = strings.Join(args[1:], " ")
 	}
 
+	if m.Config.Players[player].Language == "human" {
+		// TODO: implement human player communication
+		err := websockets.SendMessage(player, payload)
+		if err != nil {
+			return libproboj.RunnerResponse{Status: libproboj.Error}
+		} else {
+			return libproboj.RunnerResponse{Status: libproboj.Ok}
+		}
+	}
+
 	proc, ok := m.Players[player]
 	if !ok {
 		m.Log.Error("Unknown player", "player", player)
-		return libproboj.RunnerResponse{Status: libproboj.Error}
 	}
 
 	if !proc.IsRunning() {
@@ -62,6 +73,13 @@ func cmdReadPlayer(m *Match, args []string, _ string) libproboj.RunnerResponse {
 		return libproboj.RunnerResponse{Status: libproboj.Error}
 	}
 	player := args[0]
+
+	if m.Config.Players[player].Language == "human" {
+		// TODO: implement human player communication
+		msg := <-websockets.ReceiveMessage(player)
+
+		return libproboj.RunnerResponse{Status: libproboj.Ok, Payload: msg}
+	}
 
 	proc, ok := m.Players[player]
 	if !ok {

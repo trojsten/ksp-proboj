@@ -1,14 +1,15 @@
 package main
 
 import (
+	"path"
+
 	"github.com/charmbracelet/log"
 	"github.com/trojsten/ksp-proboj/runner/process"
-	"path"
 )
 
 type PlayerConf struct {
 	Command  string `json:"command"`
-	Language string `json:"language"`
+	Language string `json:"language"` // human if player is not bot
 }
 
 type Config struct {

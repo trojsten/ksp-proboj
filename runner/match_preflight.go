@@ -2,12 +2,15 @@ package main
 
 import (
 	"fmt"
-	"github.com/charmbracelet/log"
-	log2 "github.com/trojsten/ksp-proboj/runner/log"
-	"github.com/trojsten/ksp-proboj/runner/process"
+	"maps"
 	"os"
 	"path"
 	"strings"
+
+	"github.com/charmbracelet/log"
+	log2 "github.com/trojsten/ksp-proboj/runner/log"
+	"github.com/trojsten/ksp-proboj/runner/process"
+	"github.com/trojsten/ksp-proboj/runner/websockets"
 )
 
 func (m *Match) preflight() error {
@@ -32,6 +35,29 @@ func (m *Match) preflight() error {
 	err = m.startServer()
 	if err != nil {
 		return fmt.Errorf("start server: %w", err)
+	}
+
+	var humanPlayers = make(map[string]PlayerConf)
+	for _, player := range m.Game.Players {
+		if m.Config.Players[player].Language == "human" {
+			humanPlayers[player] = m.Config.Players[player]
+		}
+	}
+
+	if len(humanPlayers) > 0 {
+		go func() {
+			err := websockets.StartWebSocketServer()
+			if err != nil {
+				//return fmt.Errorf("start websocket server: %w", err)
+				return
+			}
+		}()
+
+		m.Log.Info("human players are ready to connect")
+		// wait for all connections to be established
+		websockets.WaitForPlayers(maps.Keys(humanPlayers))
+
+		m.Log.Info("All players connected, starting game")
 	}
 
 	err = m.preparePlayers()
@@ -142,8 +168,13 @@ func (m *Match) logConfig(name string) (process.LogConfig, error) {
 
 func (m *Match) startPlayer(name string) error {
 	player, exists := m.Config.Players[name]
+
 	if !exists {
 		return fmt.Errorf("player %s not found in config", name)
+	}
+
+	if player.Language == "human" {
+		return nil
 	}
 
 	logConfig, err := m.logConfig(name)

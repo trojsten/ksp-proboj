@@ -1,6 +1,6 @@
 module github.com/trojsten/ksp-proboj
 
-go 1.19
+go 1.23
 
 require (
 	github.com/charmbracelet/log v0.1.2
@@ -10,6 +10,7 @@ require (
 require (
 	github.com/charmbracelet/lipgloss v0.6.0 // indirect
 	github.com/go-logfmt/logfmt v0.6.0 // indirect
+	github.com/gorilla/websocket v1.5.3 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
 	github.com/mattn/go-isatty v0.0.17 // indirect
 	github.com/mattn/go-runewidth v0.0.13 // indirect
