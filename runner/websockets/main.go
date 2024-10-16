@@ -24,7 +24,7 @@ func StartWebSocketServer() error {
 			return
 		}
 		fmt.Println("Client connected, acquiring name")
-		c.WriteMessage(websocket.TextMessage, []byte("Send name"))
+		c.WriteMessage(websocket.TextMessage, []byte("GET NAME"))
 		_, name, err := c.ReadMessage()
 		fmt.Println("Got name: " + string(name))
 		if err != nil {
@@ -52,7 +52,7 @@ func SendMessage(player string, payload string) error {
 
 	go func(message string) error {
 		defer wg.Done()
-		err := connections[player].WriteMessage(websocket.TextMessage, []byte("GAMEDATA:"+message))
+		err := connections[player].WriteMessage(websocket.TextMessage, []byte("GAMEDATA "+message))
 		if err != nil {
 			return err
 		}
@@ -88,8 +88,6 @@ func WaitForPlayers(players iter.Seq[string]) {
 			defer wg.Done()
 			waitForConnection(player)
 		}(player)
-
-		fmt.Println("Waiting for player " + player)
 	}
 
 	wg.Wait()
@@ -103,14 +101,13 @@ func Shutdown() {
 }
 
 func ReceiveMessage(player string) (string, error) {
-	connections[player].WriteMessage(websocket.TextMessage, []byte("Next move"))
+	connections[player].WriteMessage(websocket.TextMessage, []byte("NEXT TURN"))
 	var wg sync.WaitGroup
 	var ret string
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
 		_, message, err := connections[player].ReadMessage()
-		fmt.Println("Got message: " + string(message))
 		if err != nil {
 			return
 		}
@@ -118,6 +115,5 @@ func ReceiveMessage(player string) (string, error) {
 	}()
 
 	wg.Wait()
-	fmt.Println("Returning")
 	return ret, nil
 }

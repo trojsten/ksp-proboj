@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+<script>
+  const ws = new WebSocket(window.location.origin + '/ws')
+  ws.onopen = () => {
+    // pripojili sme sa
+  }
+
+  ws.onmessage = (e) => {
+    const msg = e.data;
+    if (msg == 'GET NAME') {
+      // Spýtame sa na meno
+      const name = prompt("Zadaj meno hráča")
+      ws.send(name);
+    }
+
+    else if (msg == "NEXT TURN") {
+      // Získali sme možnosť spraviť ťah - treba povoliť interakciu s hrou
+      const turn = "make turn"
+      // Spravili sme ťah a chceme ho poslať
+      ws.send(turn)
+    }
+
+    else if (msg.startsWith("GAMEDATA ")) {
+      // aktualizovať stav hry podľa toho čo poslal runner
+      const data = msg.slice("GAMEDATA ".length)
+
+      // po úspešnom načítaní treba poslať správu "OK", aby hra pokračovala
+      ws.send("OK")
+    }
+  }
+
+  ws.onclose = () => {
+    // odpojili sme sa od servera
+  }
+</script>
+</head>
+<body>
+
+</body>
+</html>
