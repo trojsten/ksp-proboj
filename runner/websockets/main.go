@@ -47,6 +47,23 @@ func SendMessage(player string, payload string) error {
 	if connections[player] == nil {
 		return errors.New("connection for player " + player + " not found")
 	}
+	var wg sync.WaitGroup
+	wg.Add(1)
+
+	go func(message string) error {
+		defer wg.Done()
+		err := connections[player].WriteMessage(websocket.TextMessage, []byte("GAMEDATA:"+message))
+		if err != nil {
+			return err
+		}
+		_, res, err := connections[player].ReadMessage()
+		if string(res) != "OK" {
+			return errors.New(string(res))
+		}
+		return nil
+	}(payload)
+
+	wg.Wait()
 	return connections[player].WriteMessage(websocket.TextMessage, []byte(payload))
 }
 
@@ -55,9 +72,7 @@ func waitForConnection(player string) {
 	defer fmt.Println("Player " + player + " has connected")
 	for {
 		time.Sleep(300 * time.Millisecond)
-		fmt.Println("waiting")
 		if _, ok := connections[player]; ok {
-			fmt.Println("Return")
 			return
 		}
 	}
@@ -87,18 +102,22 @@ func Shutdown() {
 	}
 }
 
-func ReceiveMessage(player string) chan string {
-	ret := make(chan string)
+func ReceiveMessage(player string) (string, error) {
 	connections[player].WriteMessage(websocket.TextMessage, []byte("Next move"))
-	for {
+	var wg sync.WaitGroup
+	var ret string
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
 		_, message, err := connections[player].ReadMessage()
 		fmt.Println("Got message: " + string(message))
 		if err != nil {
-			return nil
+			return
 		}
-		ret <- string(message)
-		if string(message) == "." {
-			return ret
-		}
-	}
+		ret = string(message)
+	}()
+
+	wg.Wait()
+	fmt.Println("Returning")
+	return ret, nil
 }

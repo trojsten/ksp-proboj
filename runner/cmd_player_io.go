@@ -21,7 +21,6 @@ func cmdToPlayer(m *Match, args []string, payload string) libproboj.RunnerRespon
 	}
 
 	if m.Config.Players[player].Language == "human" {
-		// TODO: implement human player communication
 		err := websockets.SendMessage(player, payload)
 		if err != nil {
 			return libproboj.RunnerResponse{Status: libproboj.Error}
@@ -75,8 +74,11 @@ func cmdReadPlayer(m *Match, args []string, _ string) libproboj.RunnerResponse {
 	player := args[0]
 
 	if m.Config.Players[player].Language == "human" {
-		// TODO: implement human player communication
-		msg := <-websockets.ReceiveMessage(player)
+		msg, err := websockets.ReceiveMessage(player)
+		if err != nil {
+			return libproboj.RunnerResponse{Status: libproboj.Error}
+		}
+		fmt.Println("Returned message " + msg)
 
 		return libproboj.RunnerResponse{Status: libproboj.Ok, Payload: msg}
 	}
