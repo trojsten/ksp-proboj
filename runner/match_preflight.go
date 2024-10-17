@@ -5,6 +5,7 @@ import (
 	"maps"
 	"os"
 	"path"
+	"strconv"
 	"strings"
 
 	"github.com/charmbracelet/log"
@@ -45,15 +46,18 @@ func (m *Match) preflight() error {
 	}
 
 	if len(humanPlayers) > 0 {
+		if m.Config.http.port == 0 {
+			m.Config.http.port = 8080
+		}
 		go func() {
-			err := websockets.StartWebSocketServer()
+			err := websockets.StartWebSocketServer(m.Config.http.port, m.Config.http.sourceRoot)
 			if err != nil {
 				//return fmt.Errorf("start websocket server: %w", err)
 				return
 			}
 		}()
 
-		m.Log.Info("human players are ready to connect")
+		m.Log.Info("human players are ready to connect at http://localhost:" + strconv.Itoa(m.Config.http.port))
 		// wait for all connections to be established
 		websockets.WaitForPlayers(maps.Keys(humanPlayers))
 

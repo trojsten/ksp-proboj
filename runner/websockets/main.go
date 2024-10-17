@@ -7,6 +7,7 @@ import (
 	"iter"
 	"log"
 	"net/http"
+	"strconv"
 	"sync"
 	"time"
 )
@@ -15,7 +16,7 @@ var upgrader = websocket.Upgrader{}
 
 var connections map[string]*websocket.Conn
 
-func StartWebSocketServer() error {
+func StartWebSocketServer(port int, sourceRoot string) error {
 	connections = make(map[string]*websocket.Conn)
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		c, err := upgrader.Upgrade(w, r, nil)
@@ -33,10 +34,16 @@ func StartWebSocketServer() error {
 		connections[string(name)] = c
 	})
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "example.html")
+		if r.URL.Path == "/" {
+			http.ServeFile(w, r, sourceRoot+"/index.html")
+			return
+		}
+
+		http.FileServer(http.Dir(sourceRoot)).ServeHTTP(w, r)
 	})
 
-	err := http.ListenAndServe(":8080", nil)
+	err := http.ListenAndServe(":"+strconv.Itoa(port), nil)
+
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
