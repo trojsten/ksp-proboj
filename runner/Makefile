@@ -1,10 +1,10 @@
 .PHONY: runner runner.exe runner_mac
 
-runner:
-	./build.sh
+runner_linux:
+	./build.sh runner_linux
 
-runner.exe:
-	GOOS=windows ./build.sh runner.exe
+runner_windows.exe:
+	GOOS=windows ./build.sh runner_windows.exe
 
 runner_mac:
 	GOOS=darwin ./build.sh runner_mac
