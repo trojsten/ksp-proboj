@@ -78,7 +78,6 @@ func cmdReadPlayer(m *Match, args []string, _ string) libproboj.RunnerResponse {
 		if err != nil {
 			return libproboj.RunnerResponse{Status: libproboj.Error}
 		}
-		fmt.Println("Returned message " + msg)
 
 		return libproboj.RunnerResponse{Status: libproboj.Ok, Payload: msg}
 	}
