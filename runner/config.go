@@ -1,14 +1,15 @@
 package main
 
 import (
+	"path"
+
 	"github.com/charmbracelet/log"
 	"github.com/trojsten/ksp-proboj/runner/process"
-	"path"
 )
 
 type PlayerConf struct {
 	Command  string `json:"command"`
-	Language string `json:"language"`
+	Language string `json:"language"` // human if player is not bot
 }
 
 type Config struct {
@@ -19,6 +20,12 @@ type Config struct {
 	DisableLogs        bool                  `json:"disable_logs"`
 	DisableGzip        bool                  `json:"disable_gzip"`
 	GameRoot           string                `json:"game_root"`
+	http               WebsocketConfig       `json:"http"`
+}
+
+type WebsocketConfig struct {
+	port       int    `json:"port"`
+	sourceRoot string `json:"source_root"`
 }
 
 type Game struct {

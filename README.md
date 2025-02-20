@@ -30,6 +30,8 @@ Na začiatku hry Runner spustí proces Servera a pošle mu úvodnú konfiguráci
 so zoznamom hráčov oddelených medzerou a potom môže nasledovať niekoľko riadkov, ktoré načítavame z game configu `args`.
 Zároveň Runner pospúšťa všetkých hráčov.
 
+Ak v hre existujú ľudský hráči runner počká kým sa všetci pripoja a až od toho okamihu začne hru.
+
 Od tohto momentu je kontrola nad priebehom hry na strane Serveru, ktorý príkazmi ovláda Runner.
 
 ### Runner príkazy
@@ -82,6 +84,25 @@ proces.
 
 Čokoľvek, čo hráč vypíše na stderr sa uloží do jeho log súboru.
 
+### Ľudský hráč a server
+
+S pohľadu servera je ľudský hráč rovnaký ako bot. Vie používať príkazy `READ PLAYER` a `TO PLAYER` rovnako ako pri
+botoch.
+
+Komunikácia medzi ľudským hráčom a runnerom ide cez websockety. V okamihu jak sa ľudský hráč pripojí,
+runner sa ho spýta na meno, aby si ho vedel spojiť s nejakým hráčom v configu. Toto sa stane tak,
+že mu runner pošle správu `GET NAME`. Treba na ňu odpovedať iba menom hráča.
+
+Po pripojení všetkých ľudských hráčov sa spustia procesy botov a začne hra.
+
+Runner vie požiadať ľudského hráča o spravenie ťahu tým, že mu pošle príkaz `NEXT TURN` na ktorý
+ľudský hráč odpovedá rovnako ako bot. - Server zavolal `READ PLAYER` na nejakého ľudského hráča
+
+V prípade, že hráč dostal nový stav hry dostane správu s prefixom `GAMEDATA `, za ktorým nasledujú
+dáta tak, ako ich poslal server zavolaním `TO PLAYER`.
+
+Príkladná implementácia je v súbore `humanPlayer/example.html`
+
 ## Konfigurácia Runnera
 
 Runner chce dva konfiguračné súbory -- `config.json` a `games.json`.
@@ -89,12 +110,16 @@ Runner chce dva konfiguračné súbory -- `config.json` a `games.json`.
 `config.json` hovorí o nastaveniach runnera. Aktuálne obsahuje tieto voľby:
 
 - `server`: cesta k binárke servera 
-- `players`: mapovanie názov hráča → cesta k jeho binárke a jazyk (`command`, `language`)
+- `players`: mapovanie názov hráča → cesta k jeho binárke a jazyk (`command`, `language`). Ak chceme pridať ľudského hráča
+nastavíme `language` na `human`, `command` v takomto prípade nastavovať netreba.
 - `processes_per_player`: počet procesov na hráča (default 1, ak viac, tak sa vyrobia `player_0`, `player_1`...)
 - `timeout`: maximálny čas, ktorý môže hráč využiť pri čakaní na výstup v sekundách, pre každý jazyk (mapping jazyk -> timeout)
 - `disable_logs`: ak je `true`, deaktivuje ukladanie logov hráčov a servera
 - `disable_gzip`: ak je `true`, deaktivuje gzipovanie logov
 - `game_root`: cesta, kde sa budú ukladať dáta hier
+- `http`: ak v hre existuje ľudský hráč treba nastaviť
+  - `port`: na akom porte má hráč počúvať
+  - `sources_root`: priečinok v ktorom je hra - klient ľudského hráča
 
 `games.json` obsahuje definíciu hier:
 

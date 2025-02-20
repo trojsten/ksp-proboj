@@ -6,7 +6,7 @@ import (
 
 func parellelWorker(ch <-chan *Match, wg *sync.WaitGroup) {
 	defer wg.Done()
-	for true {
+	for {
 		match, more := <-ch
 		if !more {
 			return
