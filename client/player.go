@@ -2,6 +2,7 @@ package client
 
 import (
 	"fmt"
+
 	"github.com/trojsten/ksp-proboj/libproboj"
 )
 
@@ -27,7 +28,17 @@ func (r Runner) ToPlayer(player string, comment string, data string) RunnerRespo
 
 // ReadPlayer reads all data from the player until end-of-transmittion mark
 func (r Runner) ReadPlayer(player string) (RunnerResponse, string) {
-	r.sendCommandWithArgs("READ PLAYER", []string{player}, "")
+	return r.ReadPlayerWithTimeout(player, 1.0)
+}
+
+// ReadPlayerWithTimeout reads all data from the player until end-of-transmittion mark
+// with an optional timeout multiplier. multiplier=1.0 uses default timeout, multiplier=2.0 doubles it, etc.
+func (r Runner) ReadPlayerWithTimeout(player string, timeoutMultiplier float64) (RunnerResponse, string) {
+	args := []string{player}
+	if timeoutMultiplier != 1.0 {
+		args = append(args, fmt.Sprintf("%.1f", timeoutMultiplier))
+	}
+	r.sendCommandWithArgs("READ PLAYER", args, "")
 
 	response, err := r.readResponse()
 	if err != nil {

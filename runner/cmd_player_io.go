@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/trojsten/ksp-proboj/libproboj"
+	"strconv"
 	"strings"
 	"time"
+
+	"github.com/trojsten/ksp-proboj/libproboj"
 )
 
 func cmdToPlayer(m *Match, args []string, payload string) libproboj.RunnerResponse {
@@ -77,11 +79,22 @@ func cmdReadPlayer(m *Match, args []string, _ string) libproboj.RunnerResponse {
 	playerConf := m.Config.Players[player]
 	timeout := m.Config.Timeout[playerConf.Language]
 
-	m.Log.Debug("Reading data from player", "player", player)
+	// Parse optional timeout multiplier
+	var multiplier float64 = 1.0 // Default multiplier (no change)
+	if len(args) > 1 {
+		multiplier, err := strconv.ParseFloat(args[1], 64)
+		if err != nil || multiplier <= 0 {
+			m.Log.Error("Invalid timeout multiplier", "player", player, "multiplier", args[1])
+			return libproboj.RunnerResponse{Status: libproboj.Error}
+		}
+	}
+
+	actualTimeout := timeout * multiplier
+	m.Log.Debug("Reading data from player", "player", player, "timeout", actualTimeout, "multiplier", multiplier)
 	select {
-	case <-time.After(time.Millisecond * time.Duration(timeout*1000)):
-		m.Log.Warn("Player timeouted", "player", player)
-		_ = proc.WriteLog(fmt.Sprintf("[proboj] killing process due to read timeout\n"))
+	case <-time.After(time.Millisecond * time.Duration(actualTimeout*1000)):
+		m.Log.Warn("Player timeouted", "player", player, "timeout", actualTimeout)
+		_ = proc.WriteLog(fmt.Sprintf("[proboj] killing process due to read timeout (adjusted by %.1fx)\n", multiplier))
 		err := proc.Kill()
 		if err != nil {
 			m.Log.Error("Failed to kill player", "player", player, "err", err)
