@@ -4,29 +4,32 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/charmbracelet/log"
 	"os"
 	"time"
+
+	"github.com/charmbracelet/log"
 )
 
 func printUsage() {
-	fmt.Fprintf(os.Stderr, "Usage: %s [options] config games\n", os.Args[0])
-	fmt.Fprintf(os.Stderr, "Version: %v\n\n", VERSION)
+	fmt.Fprintf(os.Stderr, "Usage: %s [options]\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "Version: %v\n", VERSION)
 	flag.PrintDefaults()
+	fmt.Println()
 }
 
 func main() {
 	flag.Usage = printUsage
 	debug := false
-	flag.BoolVar(&debug, "v", debug, "print verbose logs")
+	flag.BoolVar(&debug, "verbose", debug, "print verbose logs")
 	concurrency := 1
-	flag.IntVar(&concurrency, "c", concurrency, "number of games to run concurrently")
+	flag.IntVar(&concurrency, "concurrency", concurrency, "number of games to run concurrently")
+	configFilename := "config.json"
+	gamesFilename := "games.json"
+	flag.StringVar(&configFilename, "config", configFilename, "configuration filename")
+	flag.StringVar(&gamesFilename, "games", gamesFilename, "game definition filename")
 
 	flag.Parse()
-	if flag.NArg() != 2 {
-		flag.Usage()
-		os.Exit(1)
-	}
+	flag.Usage()
 
 	log.SetTimeFormat(time.StampMilli)
 	if debug {
@@ -34,9 +37,6 @@ func main() {
 	}
 
 	registerSignals()
-
-	configFilename := flag.Arg(0)
-	gamesFilename := flag.Arg(1)
 
 	var config Config
 	var games []Game
