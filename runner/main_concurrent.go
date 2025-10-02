@@ -8,7 +8,7 @@ import (
 // Each worker runs matches sequentially as they arrive from the channel.
 func parellelWorker(ch <-chan *Match, wg *sync.WaitGroup) {
 	defer wg.Done()
-	for true {
+	for {
 		match, more := <-ch
 		if !more {
 			return

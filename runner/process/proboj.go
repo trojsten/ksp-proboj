@@ -43,12 +43,12 @@ func NewProbojProcess(command string, dir string, logConfig LogConfig) (pp Probo
 	}
 	pp.Process = &proc
 
-	pp.stdoutReader = bufio.NewReader(pp.Process.Stdout)
+	pp.stdoutReader = bufio.NewReader(pp.Stdout)
 	pp.logMutex = &sync.Mutex{}
 	pp.wait = &sync.WaitGroup{}
 
 	if logConfig.Enabled {
-		pp.stderrReader = bufio.NewReader(pp.Process.Stderr)
+		pp.stderrReader = bufio.NewReader(pp.Stderr)
 		pp.log = logConfig.Log
 		go pp.stderrLoop()
 	} else {
@@ -86,7 +86,7 @@ func (pp *ProbojProcess) readLine() (string, error) {
 // the concatenated content.
 func (pp *ProbojProcess) Read() (string, error) {
 	result := []string{}
-	for true {
+	for {
 		input, err := pp.readLine()
 		if err != nil {
 			return "", err
@@ -155,7 +155,7 @@ func (pp *ProbojProcess) closeLogOnExit() {
 
 	defer pp.logMutex.Unlock()
 	pp.logMutex.Lock()
-	_, _ = pp.log.Write([]byte(fmt.Sprintf("[proboj] process terminated\n exit: %d\n err: %v\n", pp.Exit, pp.Error)))
+	_, _ = fmt.Fprintf(pp.log, "[proboj] process terminated\n exit: %d\n err: %v\n", pp.Exit, pp.Error)
 	_ = pp.log.Close()
 }
 

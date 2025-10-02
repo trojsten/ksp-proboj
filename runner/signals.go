@@ -34,7 +34,7 @@ func signalMatchEnd(m *Match) {
 // running matches by killing their server processes. Runs in a separate
 // goroutine to avoid blocking the main thread.
 func registerSignals() {
-	ch := make(chan os.Signal)
+	ch := make(chan os.Signal, 1)
 	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
 
 	go func() {

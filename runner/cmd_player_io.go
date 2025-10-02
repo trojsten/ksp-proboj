@@ -45,7 +45,7 @@ func cmdToPlayer(m *Match, args []string, payload string) libproboj.RunnerRespon
 	select {
 	case <-time.After(5 * time.Second):
 		m.Log.Error("Write timeouted", "player", player, "err", err)
-		_ = proc.WriteLog(fmt.Sprintf("[proboj] killing process due to write timeout\n"))
+		_ = proc.WriteLog("[proboj] killing process due to write timeout\n")
 		err := proc.Kill()
 		if err != nil {
 			m.Log.Error("Failed to kill player", "player", player, "err", err)
@@ -91,7 +91,7 @@ func cmdReadPlayer(m *Match, args []string, _ string) libproboj.RunnerResponse {
 	timeout := m.Config.Timeout[playerConf.Language]
 
 	// Parse optional timeout multiplier
-	var multiplier float64 = 1.0 // Default multiplier (no change)
+	multiplier := 1.0 // Default multiplier (no change)
 	if len(args) > 1 {
 		multiplier, err := strconv.ParseFloat(args[1], 64)
 		if err != nil || multiplier <= 0 {
