@@ -1,4 +1,6 @@
-.PHONY: runner runner.exe runner_mac
+.PHONY: all
+
+all: runner_linux runner_windows.exe runner_mac
 
 runner_linux:
 	./build.sh runner_linux

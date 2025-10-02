@@ -1,0 +1,7 @@
+services:
+  builder:
+    build:
+      context: .
+    volumes:
+      - ./build:/app/build
+    command: "sh -c 'cp /app/runner/runner_* /app/build'"
