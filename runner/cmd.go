@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/trojsten/ksp-proboj/libproboj"
 	"strings"
+
+	"github.com/trojsten/ksp-proboj/libproboj"
 )
 
 type handlerFunc func(m *Match, args []string, payload string) libproboj.RunnerResponse

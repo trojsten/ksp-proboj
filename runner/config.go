@@ -1,9 +1,10 @@
 package main
 
 import (
+	"path"
+
 	"github.com/charmbracelet/log"
 	"github.com/trojsten/ksp-proboj/runner/process"
-	"path"
 )
 
 // PlayerConf contains configuration for a single player/bot.
@@ -55,7 +56,7 @@ type Match struct {
 	// Players maps player names to their process instances
 	Players map[string]*process.ProbojProcess
 	// Log is the logger for this match instance
-	Log log.Logger
+	Log *log.Logger
 	// Started indicates whether the match has begun
 	Started bool
 	// Ended indicates whether the match has finished

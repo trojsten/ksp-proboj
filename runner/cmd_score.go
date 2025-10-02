@@ -3,10 +3,11 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/trojsten/ksp-proboj/libproboj"
 	"os"
 	"path"
 	"strings"
+
+	"github.com/trojsten/ksp-proboj/libproboj"
 )
 
 // cmdScores handles the "SCORES" command from the server.

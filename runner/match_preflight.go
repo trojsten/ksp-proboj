@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/charmbracelet/log"
-	log2 "github.com/trojsten/ksp-proboj/runner/log"
-	"github.com/trojsten/ksp-proboj/runner/process"
 	"os"
 	"path"
 	"strings"
+
+	"github.com/charmbracelet/log"
+	log2 "github.com/trojsten/ksp-proboj/runner/log"
+	"github.com/trojsten/ksp-proboj/runner/process"
 )
 
 // preflight performs initial setup for the match before the game loop begins.
