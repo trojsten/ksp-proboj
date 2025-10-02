@@ -5,6 +5,8 @@ import (
 	"strings"
 )
 
+// ReadConfig reads the initial configuration from the runner.
+// Returns a slice of player names and the configuration data string.
 func (r Runner) ReadConfig() ([]string, string) {
 	line, err := r.readLine()
 	if err != nil {
@@ -28,6 +30,8 @@ func (r Runner) ReadConfig() ([]string, string) {
 	return players, data
 }
 
+// End sends an END command to the runner to signal the end of the game.
+// This notifies the runner that the game server has finished execution.
 func (r Runner) End() {
 	r.sendCommand("END", "")
 }

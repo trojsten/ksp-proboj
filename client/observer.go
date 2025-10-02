@@ -2,13 +2,15 @@ package client
 
 import (
 	"fmt"
-	"github.com/trojsten/ksp-proboj/libproboj"
 	"strings"
+
+	"github.com/trojsten/ksp-proboj/libproboj"
 )
 
+// Scores represents a mapping of player names to their scores.
 type Scores map[string]int
 
-// ToObserver sends the given data to the observer
+// ToObserver sends the given data to the observer.
 func (r Runner) ToObserver(data string) RunnerResponse {
 	r.sendCommand("TO OBSERVER", data)
 
@@ -24,7 +26,7 @@ func (r Runner) ToObserver(data string) RunnerResponse {
 	return Unknown
 }
 
-// Scores sends game scores to the observer
+// Scores sends game scores to the runner.
 func (r Runner) Scores(scores Scores) {
 	payload := []string{}
 	for player, score := range scores {

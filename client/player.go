@@ -7,8 +7,7 @@ import (
 )
 
 // ToPlayer sends the given data to the player.
-// Optional comment can be provided, which will get logged by
-// the runner
+// Optional comment can be provided, which will get logged by the runner.
 func (r Runner) ToPlayer(player string, comment string, data string) RunnerResponse {
 	r.sendCommandWithArgs("TO PLAYER", []string{player, comment}, data)
 
@@ -17,22 +16,26 @@ func (r Runner) ToPlayer(player string, comment string, data string) RunnerRespo
 		r.Log(fmt.Sprintf("error while reading response: %s", err.Error()))
 		return Unknown
 	}
-	if response.Status == libproboj.Ok {
+	switch response.Status {
+	case libproboj.Ok:
 		return Ok
-	} else if response.Status == libproboj.Died {
+	case libproboj.Died:
 		return Died
 	}
 	r.Log(fmt.Sprintf("unknown response to cmd 'TO PLAYER' from runner: %s", response.String()))
 	return Unknown
 }
 
-// ReadPlayer reads all data from the player until end-of-transmittion mark
+// ReadPlayer reads all data from the player until end-of-transmission mark.
+// Uses the default timeout (1.0 multiplier).
+// Returns response status and the data read from the player.
 func (r Runner) ReadPlayer(player string) (RunnerResponse, string) {
 	return r.ReadPlayerWithTimeout(player, 1.0)
 }
 
-// ReadPlayerWithTimeout reads all data from the player until end-of-transmittion mark
-// with an optional timeout multiplier. multiplier=1.0 uses default timeout, multiplier=2.0 doubles it, etc.
+// ReadPlayerWithTimeout reads all data from the player until end-of-transmission mark
+// with a timeout multiplier. multiplier=1.0 uses default timeout, multiplier=2.0 doubles it, etc.
+// Returns response status and the data read from the player.
 func (r Runner) ReadPlayerWithTimeout(player string, timeoutMultiplier float64) (RunnerResponse, string) {
 	args := []string{player}
 	if timeoutMultiplier != 1.0 {
@@ -46,16 +49,17 @@ func (r Runner) ReadPlayerWithTimeout(player string, timeoutMultiplier float64) 
 		return Unknown, ""
 	}
 
-	if response.Status == libproboj.Ok {
+	switch response.Status {
+	case libproboj.Ok:
 		return Ok, response.Payload
-	} else if response.Status == libproboj.Died {
+	case libproboj.Died:
 		return Died, ""
 	}
 	r.Log(fmt.Sprintf("unknown response to cmd 'READ PLAYER' from runner: %s", response.String()))
 	return Unknown, ""
 }
 
-// KillPlayer instructs the runner to kill the player's process
+// KillPlayer instructs the runner to kill the player's process.
 func (r Runner) KillPlayer(player string) RunnerResponse {
 	r.sendCommandWithArgs("KILL PLAYER", []string{player}, "")
 
@@ -72,7 +76,7 @@ func (r Runner) KillPlayer(player string) RunnerResponse {
 	return Unknown
 }
 
-// PausePlayer instructs the runner to pause player's process
+// PausePlayer instructs the runner to pause player's process.
 func (r Runner) PausePlayer(player string) RunnerResponse {
 	r.sendCommandWithArgs("PAUSE PLAYER", []string{player}, "")
 
@@ -89,7 +93,7 @@ func (r Runner) PausePlayer(player string) RunnerResponse {
 	return Unknown
 }
 
-// ResumePlayer instructs the runner to resume player's process
+// ResumePlayer instructs the runner to resume player's process.
 func (r Runner) ResumePlayer(player string) RunnerResponse {
 	r.sendCommandWithArgs("RESUME PLAYER", []string{player}, "")
 
