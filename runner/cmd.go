@@ -18,6 +18,11 @@ var Handlers = map[string]handlerFunc{
 	"END":           cmdEnd,
 }
 
+// parseCommand processes incoming commands from the server.
+// It splits the command into prefix, arguments, and payload, then
+// dispatches to the appropriate handler based on the command prefix.
+// If no handler is found, it logs a warning. Responses are sent
+// back to the server unless the status is Ignore.
 func (m *Match) parseCommand(data string) {
 	cmd, payload, _ := strings.Cut(data, "\n")
 	m.Log.Debug("Parsing command", "cmd", cmd)

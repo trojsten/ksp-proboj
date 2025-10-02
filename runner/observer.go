@@ -1,14 +1,17 @@
 package main
 
 import (
-	"github.com/trojsten/ksp-proboj/runner/log"
 	"os"
+
+	"github.com/trojsten/ksp-proboj/runner/log"
 )
 
+// Observer handles game recording by writing game events to a compressed log file.
 type Observer struct {
 	log *log.GzipLog
 }
 
+// NewObserver creates a new Observer that writes to the specified file path.
 func NewObserver(path string) (Observer, error) {
 	file, err := os.Create(path)
 	if err != nil {
@@ -25,6 +28,7 @@ func NewObserver(path string) (Observer, error) {
 	}, nil
 }
 
+// Observe writes game data to the observer log file.
 func (o Observer) Observe(data string) error {
 	if o.log == nil {
 		return nil
@@ -34,6 +38,8 @@ func (o Observer) Observe(data string) error {
 	return err
 }
 
+// Close finalizes the observer log and releases resources.
+// Flushes any pending data and closes the underlying file.
 func (o Observer) Close() error {
 	if o.log == nil {
 		return nil

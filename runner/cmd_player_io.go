@@ -9,6 +9,11 @@ import (
 	"github.com/trojsten/ksp-proboj/libproboj"
 )
 
+// cmdToPlayer handles the "TO PLAYER" command from the server.
+// It sends the payload to the specified player's stdin with optional
+// logging comment. Returns OK on success, ERROR on failure, or DIED
+// if the player process is not running. Implements write timeout handling
+// and process cleanup on timeout.
 func cmdToPlayer(m *Match, args []string, payload string) libproboj.RunnerResponse {
 	if len(args) < 1 {
 		m.Log.Error("Invalid command syntax: missing arguments")
@@ -58,6 +63,12 @@ func cmdToPlayer(m *Match, args []string, payload string) libproboj.RunnerRespon
 	}
 }
 
+// cmdReadPlayer handles the "READ PLAYER" command from the server.
+// It reads data from the specified player's stdout until a "." line
+// is encountered. Supports optional timeout multiplier argument.
+// Returns OK with player data on success, ERROR on failure, or DIED
+// if the player process is not running. Implements timeout handling
+// and automatic process cleanup on timeout.
 func cmdReadPlayer(m *Match, args []string, _ string) libproboj.RunnerResponse {
 	if len(args) < 1 {
 		m.Log.Error("Invalid command syntax: missing arguments")

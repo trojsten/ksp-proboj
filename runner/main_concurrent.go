@@ -4,6 +4,8 @@ import (
 	"sync"
 )
 
+// parellelWorker is a goroutine that processes matches from a channel.
+// Each worker runs matches sequentially as they arrive from the channel.
 func parellelWorker(ch <-chan *Match, wg *sync.WaitGroup) {
 	defer wg.Done()
 	for true {
@@ -18,6 +20,8 @@ func parellelWorker(ch <-chan *Match, wg *sync.WaitGroup) {
 	}
 }
 
+// runParallel executes multiple games concurrently using worker pool pattern.
+// Creates specified number of worker goroutines that process matches from a shared channel.
 func runParallel(config Config, games []Game, concurrency int) {
 	ch := make(chan *Match)
 	wg := sync.WaitGroup{}

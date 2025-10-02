@@ -2,6 +2,10 @@ package main
 
 import "github.com/trojsten/ksp-proboj/libproboj"
 
+// cmdKillPlayer handles the "KILL PLAYER" command from the server.
+// It terminates the specified player's process. Returns OK on success,
+// ERROR if the player doesn't exist or kill fails, or OK if the
+// player is already not running.
 func cmdKillPlayer(m *Match, args []string, _ string) libproboj.RunnerResponse {
 	if len(args) < 1 {
 		m.Log.Error("Invalid command syntax: missing arguments")
@@ -28,6 +32,10 @@ func cmdKillPlayer(m *Match, args []string, _ string) libproboj.RunnerResponse {
 	return libproboj.RunnerResponse{Status: libproboj.Ok}
 }
 
+// cmdPausePlayer handles the "PAUSE PLAYER" command from the server.
+// It suspends the specified player's process execution (SIGSTOP on Unix).
+// Returns OK on success, ERROR if the player doesn't exist or pause fails,
+// or OK if the player is already not running. Platform-dependent behavior.
 func cmdPausePlayer(m *Match, args []string, _ string) libproboj.RunnerResponse {
 	if len(args) < 1 {
 		m.Log.Error("Invalid command syntax: missing arguments")
@@ -54,6 +62,10 @@ func cmdPausePlayer(m *Match, args []string, _ string) libproboj.RunnerResponse 
 	return libproboj.RunnerResponse{Status: libproboj.Ok}
 }
 
+// cmdResumePlayer handles the "RESUME PLAYER" command from the server.
+// It resumes the specified player's process execution (SIGCONT on Unix).
+// Returns OK on success, ERROR if the player doesn't exist or resume fails,
+// or OK if the player is already not running. Platform-dependent behavior.
 func cmdResumePlayer(m *Match, args []string, _ string) libproboj.RunnerResponse {
 	if len(args) < 1 {
 		m.Log.Error("Invalid command syntax: missing arguments")

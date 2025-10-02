@@ -2,6 +2,8 @@ package log
 
 import "io"
 
+// PlainLog provides uncompressed logging to an underlying writer.
+// It passes through all write operations without modification.
 type PlainLog struct {
 	w io.WriteCloser
 }

@@ -10,6 +10,11 @@ import (
 	"strings"
 )
 
+// preflight performs initial setup for the match before the game loop begins.
+// It creates necessary directories, starts the server process, prepares player
+// configurations, sends initial configuration to the server, starts all player
+// processes, and opens the observer for recording. Returns an error if any
+// setup step fails.
 func (m *Match) preflight() error {
 	if m.Started {
 		return fmt.Errorf("the match was already started")

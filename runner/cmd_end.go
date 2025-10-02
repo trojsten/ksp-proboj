@@ -2,6 +2,10 @@ package main
 
 import "github.com/trojsten/ksp-proboj/libproboj"
 
+// cmdEnd handles the "END" command from the server.
+// It signals that the game has ended, kills the server process,
+// and marks the match as ended. Returns Ignore status to prevent
+// response to server since the game is terminating.
 func cmdEnd(m *Match, _ []string, _ string) libproboj.RunnerResponse {
 	m.Log.Info("Server ended the game.")
 	err := m.Server.Kill()

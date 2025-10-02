@@ -1,5 +1,10 @@
 package main
 
+// Run executes the main game loop for this match.
+// It handles preflight setup, command parsing from the server,
+// and ensures proper cleanup on exit. The loop continues until
+// the server stops running or the match is marked as ended.
+// Returns when the game is complete or an error occurs.
 func (m *Match) Run() {
 	defer func(m *Match) {
 		m.teardown()

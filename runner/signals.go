@@ -6,13 +6,20 @@ import (
 	"syscall"
 )
 
+// runningMatches tracks all currently active matches for graceful shutdown.
 var runningMatches []*Match
+
+// receivedKillSignal indicates whether a termination signal has been received.
 var receivedKillSignal = false
 
+// signalMatchStart registers a new match for signal tracking.
+// Called when a match starts to ensure it can be gracefully terminated.
 func signalMatchStart(m *Match) {
 	runningMatches = append(runningMatches, m)
 }
 
+// signalMatchEnd removes a completed match from signal tracking.
+// Called when a match finishes to prevent unnecessary cleanup.
 func signalMatchEnd(m *Match) {
 	for i, match := range runningMatches {
 		if match == m {
@@ -22,6 +29,10 @@ func signalMatchEnd(m *Match) {
 	}
 }
 
+// registerSignals sets up signal handlers for graceful shutdown.
+// Listens for SIGINT and SIGTERM signals and initiates cleanup of all
+// running matches by killing their server processes. Runs in a separate
+// goroutine to avoid blocking the main thread.
 func registerSignals() {
 	ch := make(chan os.Signal)
 	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)

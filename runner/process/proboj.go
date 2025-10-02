@@ -3,21 +3,33 @@ package process
 import (
 	"bufio"
 	"fmt"
-	"github.com/trojsten/ksp-proboj/runner/log"
 	"io"
 	"strings"
 	"sync"
+
+	"github.com/trojsten/ksp-proboj/runner/log"
 )
 
+// ProbojProcess extends Process with Proboj protocol-specific functionality.
+// It handles protocol-compliant I/O (messages terminated by "."), logging,
+// and asynchronous operations for communication with game servers and players.
 type ProbojProcess struct {
 	*Process
+	// stdoutReader provides buffered reading from process stdout
 	stdoutReader *bufio.Reader
+	// stderrReader provides buffered reading from process stderr
 	stderrReader *bufio.Reader
-	log          log.Log
-	logMutex     *sync.Mutex
-	wait         *sync.WaitGroup
+	// log handles logging for this process
+	log log.Log
+	// logMutex synchronizes access to the log
+	logMutex *sync.Mutex
+	// wait tracks background goroutines for proper cleanup
+	wait *sync.WaitGroup
 }
 
+// NewProbojProcess creates a new ProbojProcess with protocol-specific setup.
+// It creates the underlying Process, sets up buffered readers for I/O,
+// configures logging, and starts stderr monitoring goroutine if enabled.
 func NewProbojProcess(command string, dir string, logConfig LogConfig) (pp ProbojProcess, err error) {
 	proc, err := NewProcess(Options{
 		Command: command,
@@ -45,6 +57,7 @@ func NewProbojProcess(command string, dir string, logConfig LogConfig) (pp Probo
 	return
 }
 
+// Write sends data to the process stdin.
 func (pp *ProbojProcess) Write(data string) error {
 	if !pp.IsRunning() {
 		return fmt.Errorf("process is not running")
@@ -54,6 +67,7 @@ func (pp *ProbojProcess) Write(data string) error {
 	return err
 }
 
+// AsyncWrite sends data to process stdin asynchronously.
 func (pp *ProbojProcess) AsyncWrite(data string) <-chan error {
 	ch := make(chan error)
 	go func() {
@@ -62,10 +76,14 @@ func (pp *ProbojProcess) AsyncWrite(data string) <-chan error {
 	return ch
 }
 
+// readLine reads a single line from process stdout.
 func (pp *ProbojProcess) readLine() (string, error) {
 	return readln(pp.stdoutReader)
 }
 
+// Read reads protocol-compliant data from process stdout.
+// Reads lines until encountering a "." line, then returns
+// the concatenated content.
 func (pp *ProbojProcess) Read() (string, error) {
 	result := []string{}
 	for true {
@@ -81,11 +99,15 @@ func (pp *ProbojProcess) Read() (string, error) {
 	return strings.Join(result, "\n"), nil
 }
 
+// ReadResult represents the result of an asynchronous read operation.
+// It contains either the successfully read data or an error.
 type ReadResult struct {
 	Data  string
 	Error error
 }
 
+// AsyncRead reads protocol-compliant data from process stdout asynchronously.
+// Returns a channel that will receive a ReadResult.
 func (pp *ProbojProcess) AsyncRead() <-chan ReadResult {
 	ch := make(chan ReadResult)
 	go func() {
@@ -98,6 +120,7 @@ func (pp *ProbojProcess) AsyncRead() <-chan ReadResult {
 	return ch
 }
 
+// WriteLog writes data to the process log with thread-safe access.
 func (pp *ProbojProcess) WriteLog(data string) error {
 	defer pp.logMutex.Unlock()
 	pp.logMutex.Lock()
@@ -105,6 +128,8 @@ func (pp *ProbojProcess) WriteLog(data string) error {
 	return err
 }
 
+// stderrLoop continuously reads from process stderr and logs the output.
+// Runs in a background goroutine until EOF or error is encountered.
 func (pp *ProbojProcess) stderrLoop() {
 	pp.wait.Add(1)
 	defer pp.wait.Done()
@@ -123,6 +148,8 @@ func (pp *ProbojProcess) stderrLoop() {
 	pp.closeLogOnExit()
 }
 
+// closeLogOnExit waits for process exit and writes termination information to the log.
+// Records the exit code and error, then closes the log file.
 func (pp *ProbojProcess) closeLogOnExit() {
 	<-pp.OnExit()
 
@@ -132,6 +159,8 @@ func (pp *ProbojProcess) closeLogOnExit() {
 	_ = pp.log.Close()
 }
 
+// WaitForEnd blocks until all background goroutines for this process have completed.
+// Ensures proper cleanup before process destruction.
 func (pp *ProbojProcess) WaitForEnd() {
 	pp.wait.Wait()
 }

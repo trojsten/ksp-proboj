@@ -1,38 +1,66 @@
+// Package process provides subprocess management capabilities for the Proboj runner.
+// It handles process creation, lifecycle management (start/kill/pause/resume),
+// I/O redirection, and cross-platform process control. The package includes
+// both basic Process management and ProbojProcess for protocol-specific communication.
 package process
 
 import (
 	"bufio"
 	"fmt"
-	"github.com/google/shlex"
 	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
+
+	"github.com/google/shlex"
 )
 
+// Options contains configuration for creating a new Process.
 type Options struct {
+	// Command is the executable command to run
 	Command string
-	Dir     string
-	Stdin   bool
-	Stdout  bool
-	Stderr  bool
+	// Dir is the working directory for the process
+	Dir string
+	// Stdin enables stdin pipe when true
+	Stdin bool
+	// Stdout enables stdout pipe when true
+	Stdout bool
+	// Stderr enables stderr pipe when true
+	Stderr bool
 }
 
+// Process represents a managed subprocess with stdin/stdout/stderr pipes,
+// lifecycle management (start/kill/pause/resume), and exit status tracking.
 type Process struct {
-	cmd    *exec.Cmd
-	Stdin  io.WriteCloser
+	// cmd is the underlying exec.Cmd instance
+	cmd *exec.Cmd
+	// Stdin is the writeable pipe for process input
+	Stdin io.WriteCloser
+	// Stdout is the readable pipe for process output
 	Stdout io.ReadCloser
+	// Stderr is the readable pipe for process error output
 	Stderr io.ReadCloser
 
-	pid      int
-	started  bool
-	ended    bool
-	paused   bool
-	exitChan chan struct{} // closed on process exit
-	Exit     int
-	Error    error
+	// pid is the process ID
+	pid int
+	// started indicates whether the process has been started
+	started bool
+	// ended indicates whether the process has terminated
+	ended bool
+	// paused indicates whether the process is currently paused
+	paused bool
+	// exitChan is closed when the process exits
+	exitChan chan struct{}
+	// Exit contains the process exit code
+	Exit int
+	// Error contains any error that occurred during process execution
+	Error error
 }
 
+// NewProcess creates a new Process instance with the given options.
+// It parses the command, resolves absolute paths, sets up the working
+// directory, and creates pipes for enabled I/O streams. Returns the
+// Process instance or an error if setup fails.
 func NewProcess(options Options) (p Process, err error) {
 	parts, err := shlex.Split(options.Command)
 	if err != nil {
@@ -92,6 +120,8 @@ func (p *Process) run() error {
 	return nil
 }
 
+// Start begins process execution in a goroutine.
+// Returns a channel that will be closed when the process exits.
 func (p *Process) Start() chan struct{} {
 	if p.started {
 		p.Error = fmt.Errorf("process was already started")
@@ -110,14 +140,17 @@ func (p *Process) Start() chan struct{} {
 	return p.exitChan
 }
 
+// OnExit returns a channel that is closed when the process exits.
 func (p *Process) OnExit() chan struct{} {
 	return p.exitChan
 }
 
+// IsRunning returns true if the process has been started and has not yet ended.
 func (p *Process) IsRunning() bool {
 	return p.started && !p.ended
 }
 
+// Kill terminates the process forcefully.
 func (p *Process) Kill() error {
 	if !p.IsRunning() || p.pid == 0 {
 		return fmt.Errorf("process is not running")
@@ -134,6 +167,8 @@ func (p *Process) Kill() error {
 	return terminateProcess(p.pid)
 }
 
+// Pause suspends process execution (platform-dependent).
+// Uses SIGSTOP on Unix systems.
 func (p *Process) Pause() error {
 	if !p.IsRunning() || p.pid == 0 {
 		return fmt.Errorf("process is not running")
@@ -147,6 +182,8 @@ func (p *Process) Pause() error {
 	return pauseProcess(p.pid)
 }
 
+// Resume resumes process execution (platform-dependent).
+// Uses SIGCONT on Unix systems.
 func (p *Process) Resume() error {
 	if !p.IsRunning() || p.pid == 0 {
 		return fmt.Errorf("process is not running")
@@ -160,6 +197,7 @@ func (p *Process) Resume() error {
 	return resumeProcess(p.pid)
 }
 
+// IsPaused returns true if the process is currently paused.
 func (p *Process) IsPaused() bool {
 	return p.paused
 }

@@ -5,6 +5,9 @@ import (
 	"io"
 )
 
+// GzipLog provides compressed logging using gzip compression.
+// It wraps an underlying WriteCloser and compresses all written data
+// on-the-fly, providing efficient storage for large log files.
 type GzipLog struct {
 	w  io.WriteCloser
 	gz *gzip.Writer

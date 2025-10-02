@@ -1,3 +1,7 @@
+// Package main implements the Proboj runner that manages game servers,
+// player processes, and their communication according to the Proboj protocol.
+// The runner handles process lifecycle management, command parsing, logging,
+// and coordination between the game server and player bots.
 package main
 
 import (

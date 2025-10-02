@@ -9,6 +9,10 @@ import (
 	"strings"
 )
 
+// cmdScores handles the "SCORES" command from the server.
+// It parses score data from payload (format: "player score" per line),
+// validates the data, and saves it as JSON to score.json in the game directory.
+// Returns OK on successful save, ERROR if parsing or file operations fail.
 func cmdScores(m *Match, _ []string, payload string) libproboj.RunnerResponse {
 	lines := strings.Split(payload, "\n")
 	scores := map[string]int{}

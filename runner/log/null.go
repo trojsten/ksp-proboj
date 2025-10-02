@@ -1,5 +1,7 @@
 package log
 
+// NullLog provides a no-op logging implementation that discards all data.
+// Useful for disabling logging entirely.
 type NullLog struct{}
 
 func NewNullLog() *NullLog {

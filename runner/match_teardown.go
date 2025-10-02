@@ -1,5 +1,9 @@
 package main
 
+// teardown performs cleanup operations when a match ends.
+// It ensures all resources are properly released, including closing the observer
+// file, terminating the server process, and killing all player processes.
+// This method is called automatically when a match completes or fails.
 func (m *Match) teardown() {
 	var err error
 
